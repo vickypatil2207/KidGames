@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎲 Ludo — Kids Edition 🏆</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bungee&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/animations.css" />
+</head>
+<body>
+  <!-- Animated background -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Floating decorations -->
+  <div class="floating-deco" aria-hidden="true">
+    <span>🎲</span><span>⭐</span><span>🎈</span><span>🦄</span>
+    <span>🌈</span><span>🍭</span><span>🎨</span><span>🦁</span>
+  </div>
+
+  <header class="app-header">
+    <h1 class="title">
+      <span class="title-emoji">🎲</span>
+      <span class="title-text">LUDO PARTY</span>
+      <span class="title-emoji">🏆</span>
+    </h1>
+    <p class="subtitle">A magical adventure for little champions!</p>
+  </header>
+
+  <main class="game-shell">
+    <!-- Board Wrap -->
+    <section class="board-wrap" aria-label="Game board">
+      <div id="board" class="ludo-board"></div>
+    </section>
+
+    <!-- Sidebar controls -->
+    <aside class="sidebar">
+      <div class="card turn-card">
+        <div class="turn-label">Active Player</div>
+        <div id="turn-indicator" class="turn-indicator">
+          <span class="turn-avatar">🎈</span>
+          <span class="turn-name">Ludo Player</span>
+        </div>
+      </div>
+
+      <div class="card dice-card">
+        <div id="dice-message" class="dice-message">Roll to start your token!</div>
+        <div id="dice-container" class="dice-wrapper">
+          <div id="dice" class="dice" role="button" tabindex="0" aria-label="Roll the dice">
+            <span class="dice-face" data-face="1">⚀</span>
+          </div>
+        </div>
+        <button id="roll-btn" class="btn btn-primary" type="button">
+          <span>🎲</span><span>Roll Dice</span>
+        </button>
+      </div>
+
+      <div class="card players-card">
+        <h3 class="card-title">Little Champions</h3>
+        <ul id="players-list" class="players-list"></ul>
+      </div>
+
+      <div class="card log-card">
+        <h3 class="card-title">Game Log</h3>
+        <ul id="log-list" class="log-list"></ul>
+      </div>
+
+      <div class="sidebar-buttons">
+        <button id="rules-btn" class="btn btn-secondary btn-small" type="button">
+          <span>📖</span><span>How to Play</span>
+        </button>
+        <button id="reset-btn" class="btn btn-ghost btn-small" type="button">
+          <span>🔄</span><span>New Game</span>
+        </button>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Rules modal -->
+  <div id="rules-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card rules-card">
+      <h2 class="modal-title">🌟 How to Play 🌟</h2>
+      <div class="rules-content">
+        <p>👋 Welcome to Ludo Party! Here are the rules for little champions:</p>
+        <ul>
+          <li><strong>✨ Releasing a Token:</strong> Roll a <strong>6</strong> to free your cartoon token from the corner yard and put it on the starting star cell!</li>
+          <li><strong>🎲 Extra Rolls:</strong> If you roll a <strong>6</strong>, you get to roll the dice one more time!</li>
+          <li><strong>⚡ Moving:</strong> Tap/click on your glowing token to move it forward. If it's a computer's turn, it will choose and move automatically!</li>
+          <li><strong>💥 Cute Capture:</strong> Land on an opponent's token to "tag" it, sending it back to their yard, and get an <strong>extra roll</strong>!</li>
+          <li><strong>⭐ Safe Cells:</strong> Tokens are safe from being tagged on any cell marked with a star!</li>
+          <li><strong>🏆 Landing Home:</strong> Race all 4 of your tokens all the way around the board and into the center home triangle to win!</li>
+        </ul>
+      </div>
+      <button id="rules-close" class="btn btn-primary" type="button">
+        <span>Ready! Let's Go</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Setup modal -->
+  <div id="setup-modal" class="modal open" role="dialog" aria-modal="true" aria-hidden="false">
+    <div class="modal-card setup-card">
+      <div class="modal-emoji">🎲</div>
+      <h2 class="modal-title">Ludo Party Setup</h2>
+      <p class="modal-text">Get ready for your colorful journey!</p>
+
+      <div class="setup-section">
+        <label class="setup-label">How many players?</label>
+        <div class="player-count-group">
+          <button class="count-btn" data-count="2" type="button">2 Players</button>
+          <button class="count-btn" data-count="3" type="button">3 Players</button>
+          <button class="count-btn active" data-count="4" type="button">4 Players</button>
+        </div>
+      </div>
+
+      <div id="player-setup-forms" class="setup-section player-forms-section">
+        <!-- Will be dynamically populated by main.js with Name input, Human/Computer toggle, and character carousel -->
+      </div>
+
+      <button id="start-btn" class="btn btn-primary" type="button">
+        <span>🏁</span><span>Start Adventure</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Winner modal -->
+  <div id="winner-modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-card winner-card">
+      <div class="confetti" aria-hidden="true"></div>
+      <div class="modal-emoji">🏆</div>
+      <h2 id="winner-title" class="modal-title">Champion!</h2>
+      <p id="winner-text" class="modal-text">Hooray! You did a fantastic job!</p>
+      
+      <div id="leaderboard" class="leaderboard-section">
+        <h3>Final Standings</h3>
+        <ul id="leaderboard-list"></ul>
+      </div>
+
+      <button id="winner-close" class="btn btn-primary" type="button">
+        <span>🎉</span><span>Play Again</span>
+      </button>
+    </div>
+  </div>
+
+  <script src="js/Board.js"></script>
+  <script src="js/Player.js"></script>
+  <script src="js/Dice.js"></script>
+  <script src="js/BackgroundAnimation.js"></script>
+  <script src="js/Game.js"></script>
+  <script src="js/UIManager.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
