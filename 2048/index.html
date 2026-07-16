@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffd6e0" />
+  <title>🍓 2048 - The Fruit Puzzle! 🍌</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link
+    rel="icon"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8D%93%3C/text%3E%3C/svg%3E"
+  />
+</head>
+<body>
+  <!-- Floating background bubbles -->
+  <div class="bubbles" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <main class="app">
+    <header class="hero">
+      <h1 class="title">
+        <span class="title-fruit">🍓</span>
+        <span class="title-text">2&nbsp;0&nbsp;4&nbsp;8</span>
+        <span class="title-fruit">🍌</span>
+      </h1>
+      <p class="subtitle">Slide &amp; match the fruits to win!</p>
+    </header>
+
+    <section class="info-bar" aria-label="Score panel">
+      <div class="score-box">
+        <span class="score-label">SCORE</span>
+        <span class="score-value" id="score">0</span>
+      </div>
+      <div class="score-box best">
+        <span class="score-label">⭐ BEST</span>
+        <span class="score-value" id="best">0</span>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="new-game-btn" type="button">
+        <span class="btn-icon">🎮</span>
+        <span>New Game</span>
+      </button>
+      <button class="btn btn-secondary" id="undo-btn" type="button">
+        <span class="btn-icon">↶</span>
+        <span>Undo</span>
+      </button>
+      <button class="btn btn-sound" id="sound-btn" type="button" aria-pressed="true">
+        <span class="btn-icon" id="sound-icon">🔊</span>
+        <span>Sound</span>
+      </button>
+    </div>
+
+    <section class="board-wrapper" aria-label="Game board">
+      <div class="board" id="board" role="grid" aria-label="4 by 4 game grid">
+        <!-- Cell backgrounds rendered by UI -->
+        <div class="grid-bg" id="grid-bg" aria-hidden="true"></div>
+        <!-- Tiles rendered by UI -->
+        <div class="tile-layer" id="tile-layer"></div>
+      </div>
+
+      <!-- Overlay messages (win / lose) -->
+      <div class="overlay" id="overlay" aria-live="polite">
+        <div class="overlay-card">
+          <div class="overlay-emoji" id="overlay-emoji">🎉</div>
+          <h2 class="overlay-title" id="overlay-title">You did it!</h2>
+          <p class="overlay-message" id="overlay-message">You reached 2048! Keep going for a higher score.</p>
+          <div class="overlay-actions">
+            <button class="btn btn-primary" id="overlay-primary" type="button">Play Again</button>
+            <button class="btn btn-secondary" id="overlay-secondary" type="button">Keep Going</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-to">
+      <h3>How to play 🌟</h3>
+      <ul>
+        <li>👆 <b>Swipe</b> or use <b>arrow keys</b> to move the tiles.</li>
+        <li>🍇 Match <b>two tiles with the same number</b> — they merge into one!</li>
+        <li>🎯 Reach the magic <b>2048</b> tile to win!</li>
+        <li>↶ Made a mistake? Tap <b>Undo</b> to take back one move.</li>
+      </ul>
+    </section>
+
+    <footer class="footer">
+      <span>Made with 💖 for kids • Have fun!</span>
+    </footer>
+  </main>
+
+  <!-- Confetti container -->
+  <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+  <!-- Scripts loaded as ES6 modules so OOP classes live in their own files -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

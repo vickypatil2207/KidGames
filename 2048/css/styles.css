@@ -1,0 +1,498 @@
+/* ============================================================
+   🍓 2048 Kids Edition — Stylesheet
+   - Bright, friendly palette
+   - Rounded everything
+   - Bouncy transitions
+   ============================================================ */
+
+:root {
+  --bg-1: #ffeaf2;
+  --bg-2: #e7f5ff;
+  --bg-3: #fff7e0;
+  --board-bg: #f3d9c5;
+  --cell-bg: #ead2bd;
+  --shadow-soft: 0 10px 25px rgba(255, 145, 175, 0.25);
+  --shadow-tile: 0 6px 0 rgba(0, 0, 0, 0.08), 0 8px 20px rgba(0, 0, 0, 0.1);
+  --primary: #ff6fa5;
+  --primary-dark: #e85a91;
+  --secondary: #6ec6ff;
+  --secondary-dark: #4baeec;
+  --accent: #ffd166;
+  --success: #7ed957;
+  --danger: #ff7a7a;
+  --text: #5b3a4a;
+  --text-soft: #8a6b78;
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 10px;
+  --board-size: min(92vw, 480px);
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  font-family: "Fredoka", "Baloo 2", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 20% 15%, #ffd6e6 0, transparent 45%),
+    radial-gradient(circle at 85% 20%, #d6ecff 0, transparent 45%),
+    radial-gradient(circle at 75% 90%, #fff1c2 0, transparent 45%),
+    linear-gradient(135deg, var(--bg-1), var(--bg-2) 60%, var(--bg-3));
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* ----- Floating background bubbles ----- */
+.bubbles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.bubbles span {
+  position: absolute;
+  display: block;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.7);
+  bottom: -120px;
+  animation: float 18s linear infinite;
+}
+.bubbles span:nth-child(1) { left: 5%;  width: 50px; height: 50px;  animation-duration: 16s; }
+.bubbles span:nth-child(2) { left: 18%; width: 80px; height: 80px;  animation-duration: 22s; animation-delay: 2s; }
+.bubbles span:nth-child(3) { left: 32%; width: 40px; height: 40px;  animation-duration: 14s; animation-delay: 4s; }
+.bubbles span:nth-child(4) { left: 48%; width: 70px; height: 70px;  animation-duration: 20s; animation-delay: 1s; }
+.bubbles span:nth-child(5) { left: 62%; width: 55px; height: 55px;  animation-duration: 17s; animation-delay: 3s; }
+.bubbles span:nth-child(6) { left: 76%; width: 90px; height: 90px;  animation-duration: 25s; animation-delay: 5s; }
+.bubbles span:nth-child(7) { left: 88%; width: 45px; height: 45px;  animation-duration: 15s; animation-delay: 2s; }
+.bubbles span:nth-child(8) { left: 92%; width: 65px; height: 65px;  animation-duration: 19s; animation-delay: 6s; }
+
+@keyframes float {
+  0%   { transform: translateY(0) rotate(0deg);     opacity: 0; }
+  10%  { opacity: 0.7; }
+  100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+}
+
+/* ----- Layout ----- */
+.app {
+  position: relative;
+  z-index: 1;
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 28px 18px 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+/* ----- Hero / Title ----- */
+.hero {
+  text-align: center;
+  margin-bottom: 4px;
+}
+.title {
+  font-family: "Baloo 2", "Fredoka", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.6rem, 9vw, 4rem);
+  margin: 0;
+  letter-spacing: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  color: var(--primary-dark);
+  text-shadow:
+    0 4px 0 #fff,
+    0 6px 12px rgba(232, 90, 145, 0.35);
+  animation: bounce-title 2.5s ease-in-out infinite;
+}
+.title-fruit {
+  font-size: 0.9em;
+  display: inline-block;
+  animation: wiggle 1.6s ease-in-out infinite;
+}
+.title-fruit:last-child { animation-delay: 0.8s; }
+
+@keyframes bounce-title {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-8deg); }
+  50%      { transform: rotate(8deg); }
+}
+
+.subtitle {
+  margin: 6px 0 0;
+  color: var(--text-soft);
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+/* ----- Score bar ----- */
+.info-bar {
+  display: flex;
+  gap: 12px;
+  width: var(--board-size);
+  justify-content: stretch;
+}
+.score-box {
+  flex: 1;
+  background: linear-gradient(160deg, #fff, #fff7fb);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  text-align: center;
+  box-shadow: var(--shadow-soft);
+  border: 2px solid #ffe2ec;
+  position: relative;
+  overflow: hidden;
+}
+.score-box.best {
+  background: linear-gradient(160deg, #fff8dc, #fff2b8);
+  border-color: #ffe27a;
+}
+.score-label {
+  display: block;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-soft);
+  letter-spacing: 1.5px;
+}
+.score-box.best .score-label { color: #b48a16; }
+.score-value {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--primary-dark);
+  font-family: "Baloo 2", sans-serif;
+  transition: transform 0.25s ease;
+}
+.score-box.best .score-value { color: #c99500; }
+.score-value.bump { transform: scale(1.25); }
+
+/* ----- Buttons ----- */
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: var(--board-size);
+}
+.btn {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  background: var(--primary);
+  box-shadow: 0 5px 0 var(--primary-dark), 0 8px 14px rgba(232, 90, 145, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.2s ease;
+  flex: 1;
+  justify-content: center;
+  min-width: 100px;
+}
+.btn:hover { filter: brightness(1.05); }
+.btn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 var(--primary-dark), 0 4px 8px rgba(232, 90, 145, 0.35);
+}
+.btn:focus-visible {
+  outline: 3px solid #fff;
+  outline-offset: 3px;
+}
+.btn-secondary {
+  background: var(--secondary);
+  box-shadow: 0 5px 0 var(--secondary-dark), 0 8px 14px rgba(75, 174, 236, 0.3);
+}
+.btn-secondary:active { box-shadow: 0 2px 0 var(--secondary-dark); }
+.btn-sound {
+  background: var(--accent);
+  color: #6b4f00;
+  box-shadow: 0 5px 0 #d8a93b, 0 8px 14px rgba(255, 209, 102, 0.45);
+}
+.btn-sound:active { box-shadow: 0 2px 0 #d8a93b; }
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  filter: grayscale(0.4);
+}
+.btn-icon { font-size: 1.1rem; line-height: 1; }
+
+/* ----- Board ----- */
+.board-wrapper {
+  position: relative;
+  width: var(--board-size);
+  height: var(--board-size);
+}
+.board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--board-bg);
+  border-radius: var(--radius-lg);
+  padding: 12px;
+  box-shadow:
+    inset 0 0 0 4px #fff,
+    0 18px 40px rgba(232, 156, 122, 0.35),
+    0 4px 0 #d9b89a;
+  user-select: none;
+  touch-action: none;
+}
+.grid-bg {
+  position: absolute;
+  inset: 12px;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+}
+.grid-bg .cell {
+  background: var(--cell-bg);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.05);
+}
+
+.tile-layer {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+}
+
+/* ----- Tiles ----- */
+.tile {
+  position: absolute;
+  width: calc((100% - 30px) / 4);
+  height: calc((100% - 30px) / 4);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Baloo 2", sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.2rem, 5.5vw, 2.4rem);
+  color: #5b3a4a;
+  background: #fff;
+  box-shadow: var(--shadow-tile);
+  /* No slide transition: tiles snap to their new cell so only the merged
+     survivor draws the eye with its pulse animation. */
+  will-change: transform;
+  pointer-events: auto;
+}
+/* Spawn glow effect uses filter + opacity so it doesn't fight the
+   positioning transform. The tile always renders at correct position/size. */
+.tile.tile-new {
+  animation: pop 260ms ease;
+}
+.tile.tile-merged {
+  animation: merge 220ms ease;
+  z-index: 2;
+}
+/* Consumed tiles fade out and shrink from where they started — never
+   jumps to the survivor's cell (which would look like a phantom number). */
+.tile.tile-consumed {
+  animation: consume 220ms ease forwards;
+  z-index: 1;
+}
+.tile.tile-2    { background: #fff0f6; }
+.tile.tile-4    { background: #ffe2ec; }
+.tile.tile-8    { background: #ffd1a8; color: #6b3a18; }
+.tile.tile-16   { background: #ffba7a; color: #6b3a18; }
+.tile.tile-32   { background: #ff9aa2; color: #fff; }
+.tile.tile-64   { background: #ff7a85; color: #fff; }
+.tile.tile-128  { background: #ffd166; color: #6b4f00; font-size: clamp(1.1rem, 5vw, 2.1rem); }
+.tile.tile-256  { background: #ffe28a; color: #6b4f00; font-size: clamp(1.1rem, 5vw, 2.1rem); box-shadow: 0 6px 0 #d8a93b, 0 8px 20px rgba(0,0,0,0.1); }
+.tile.tile-512  { background: #bde0fe; color: #1d4d80; font-size: clamp(1.1rem, 5vw, 2.1rem); box-shadow: 0 6px 0 #8bc3f5, 0 8px 20px rgba(0,0,0,0.1); }
+.tile.tile-1024 { background: #a2d2ff; color: #1d4d80; font-size: clamp(1rem, 4.5vw, 1.9rem); box-shadow: 0 6px 0 #6fb1f0, 0 8px 20px rgba(0,0,0,0.1); }
+.tile.tile-2048 {
+  background: linear-gradient(135deg, #ff6fa5, #ffd166, #6ec6ff);
+  color: #fff;
+  font-size: clamp(1rem, 4.5vw, 1.9rem);
+  box-shadow: 0 0 25px rgba(255, 145, 175, 0.6), 0 6px 0 #e85a91;
+  animation: glow 1.6s ease-in-out infinite alternate;
+}
+.tile.super   {
+  background: linear-gradient(135deg, #b58cff, #6ec6ff);
+  color: #fff;
+  font-size: clamp(0.9rem, 4vw, 1.7rem);
+}
+
+/* Pop uses opacity + filter so it doesn't override positioning transform. */
+@keyframes pop {
+  0%   { opacity: 0; filter: brightness(1.6) saturate(1.4); }
+  60%  { opacity: 1; filter: brightness(1.1) saturate(1.1); }
+  100% { opacity: 1; filter: none; }
+}
+/* Merge pulse — quick scale + brightness flash, no big ring. */
+@keyframes merge {
+  0%   { transform: scale(1);    filter: brightness(1)    saturate(1); }
+  40%  { transform: scale(1.15); filter: brightness(1.35) saturate(1.4); }
+  100% { transform: scale(1);    filter: none; }
+}
+/* Consumed tile — shrink + fade from its ORIGINAL grid cell.
+   `forwards` keeps the final state so the element is invisible while
+   `animationend` removes it from the DOM. */
+@keyframes consume {
+  0%   { opacity: 1;   filter: brightness(1);   }
+  100% { opacity: 0;   filter: brightness(1.2); }
+}
+@keyframes glow {
+  from { box-shadow: 0 0 12px rgba(255, 145, 175, 0.6), 0 6px 0 #e85a91; }
+  to   { box-shadow: 0 0 28px rgba(255, 209, 102, 0.85), 0 6px 0 #e85a91; }
+}
+
+/* ----- Overlay ----- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  border-radius: var(--radius-lg);
+  z-index: 10;
+  animation: fadein 0.3s ease;
+}
+.overlay.show { display: flex; }
+@keyframes fadein {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.overlay-card {
+  background: #fff;
+  border-radius: var(--radius-lg);
+  padding: 22px 22px 18px;
+  text-align: center;
+  width: min(82%, 360px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.15);
+  border: 3px solid #ffe2ec;
+  animation: bounce-in 0.45s ease;
+}
+.overlay-emoji {
+  font-size: 3.2rem;
+  margin-bottom: 4px;
+  animation: wiggle 1.6s ease-in-out infinite;
+  display: inline-block;
+}
+.overlay-title {
+  font-family: "Baloo 2", sans-serif;
+  font-size: 1.6rem;
+  margin: 4px 0 6px;
+  color: var(--primary-dark);
+}
+.overlay-message {
+  margin: 0 0 14px;
+  color: var(--text-soft);
+  font-weight: 500;
+}
+.overlay-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+@keyframes bounce-in {
+  0%   { transform: scale(0.5); opacity: 0; }
+  70%  { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(1); }
+}
+
+/* ----- How to play ----- */
+.how-to {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: var(--radius-md);
+  padding: 16px 18px;
+  width: var(--board-size);
+  box-shadow: var(--shadow-soft);
+  border: 2px solid #ffe2ec;
+}
+.how-to h3 {
+  margin: 0 0 8px;
+  color: var(--primary-dark);
+  font-family: "Baloo 2", sans-serif;
+}
+.how-to ul {
+  margin: 0;
+  padding: 0 0 0 18px;
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+.how-to li { margin-bottom: 2px; }
+.how-to b { color: var(--text); }
+
+/* ----- Footer ----- */
+.footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+  margin-top: 6px;
+}
+
+/* ----- Confetti ----- */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+.confetti i {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 16px;
+  border-radius: 2px;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  0%   { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(110vh) rotate(720deg); opacity: 0.9; }
+}
+
+/* ----- Toast / shake ----- */
+.shake {
+  animation: shake 0.4s;
+}
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%      { transform: translateX(-8px); }
+  40%      { transform: translateX(8px); }
+  60%      { transform: translateX(-6px); }
+  80%      { transform: translateX(6px); }
+}
+
+/* ----- Reduced motion ----- */
+@media (prefers-reduced-motion: reduce) {
+  .tile, .title, .title-fruit, .overlay-emoji, .bubble {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ----- Small screens ----- */
+@media (max-width: 420px) {
+  .score-value { font-size: 1.5rem; }
+  .btn { font-size: 0.95rem; padding: 10px 14px; }
+  .title { letter-spacing: 2px; }
+}

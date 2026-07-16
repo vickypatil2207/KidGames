@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tic Tac Toe — Fun for Kids! 🎈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bubblegum+Sans&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <!-- Decorative floating background shapes -->
+  <div class="bg-shapes" aria-hidden="true">
+    <div class="shape shape-1"></div>
+    <div class="shape shape-2"></div>
+    <div class="shape shape-3"></div>
+    <div class="shape shape-4"></div>
+    <div class="shape shape-5"></div>
+    <div class="shape shape-6"></div>
+  </div>
+
+  <main class="container">
+    <h1 class="title">
+      <span class="title-x">Tic</span>
+      <span class="title-tac">Tac</span>
+      <span class="title-toe">Toe</span>
+      <span class="title-emoji">🎮</span>
+    </h1>
+    <p class="subtitle">A super fun game for kids! ✨</p>
+
+    <!-- Mode selector -->
+    <div class="mode-toggle" role="tablist" aria-label="Game mode">
+      <button class="mode-btn active" data-mode="pvp" role="tab" aria-selected="true">
+        👫 Two Players
+      </button>
+      <button class="mode-btn" data-mode="cpu" role="tab" aria-selected="false">
+        🤖 vs Computer
+      </button>
+    </div>
+
+    <!-- Scoreboard -->
+    <section class="scoreboard" aria-label="Scoreboard">
+      <div class="player-score player-x" id="player1-card">
+        <div class="player-icon">❌</div>
+        <div class="player-name" id="player1-name">Player 1</div>
+        <div class="score-value" id="score1">0</div>
+      </div>
+      <div class="vs">VS</div>
+      <div class="player-score player-o" id="player2-card">
+        <div class="player-icon">⭕</div>
+        <div class="player-name" id="player2-name">Player 2</div>
+        <div class="score-value" id="score2">0</div>
+      </div>
+    </section>
+
+    <!-- Turn status -->
+    <div class="status" id="status">
+      <span class="status-emoji">👉</span>
+      <span class="status-text" id="status-text">Player 1's turn</span>
+    </div>
+
+    <!-- Game board -->
+    <div class="board" id="board" role="grid" aria-label="Tic Tac Toe board">
+      <button class="cell" data-index="0" aria-label="Cell 1"></button>
+      <button class="cell" data-index="1" aria-label="Cell 2"></button>
+      <button class="cell" data-index="2" aria-label="Cell 3"></button>
+      <button class="cell" data-index="3" aria-label="Cell 4"></button>
+      <button class="cell" data-index="4" aria-label="Cell 5"></button>
+      <button class="cell" data-index="5" aria-label="Cell 6"></button>
+      <button class="cell" data-index="6" aria-label="Cell 7"></button>
+      <button class="cell" data-index="7" aria-label="Cell 8"></button>
+      <button class="cell" data-index="8" aria-label="Cell 9"></button>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls">
+      <button class="btn btn-primary" id="restart">
+        <span>🔄</span> New Round
+      </button>
+      <button class="btn btn-secondary" id="reset-all">
+        <span>🧹</span> Reset Scores
+      </button>
+    </div>
+
+    <footer class="footer">
+      <p>Made with 💖 for kids — Have fun!</p>
+    </footer>
+  </main>
+
+  <!-- Winner modal -->
+  <div class="modal" id="winner-modal" role="dialog" aria-modal="true" aria-hidden="true">
+    <div class="modal-content">
+      <div class="modal-emoji" id="modal-emoji">🏆</div>
+      <h2 class="winner-text" id="winner-text">🎉 Player 1 Wins! 🎉</h2>
+      <p class="winner-sub" id="winner-sub">Amazing job!</p>
+      <button class="btn btn-primary btn-large" id="play-again">
+        <span>🎲</span> Play Again!
+      </button>
+    </div>
+  </div>
+
+  <!-- JS (OOP) — order matters: deps first, then composition root -->
+  <script src="js/player.js"></script>
+  <script src="js/computer-player.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
