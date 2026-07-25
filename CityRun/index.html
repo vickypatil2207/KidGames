@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CityRun - Ahmedabad & Gandhinagar Kid Runner</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Three.js 3D Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 3D WebGL Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Monument Banner Notification -->
+        <div id="monument-banner" class="monument-banner hidden">
+            <i class="fa-solid fa-location-dot"></i>
+            <span id="monument-text">Entering Atal Bridge, Ahmedabad!</span>
+        </div>
+
+        <!-- In-Game HUD -->
+        <div id="hud" class="hud-overlay hidden">
+            <div class="hud-top">
+                <div class="hud-stat score-stat">
+                    <i class="fa-solid fa-trophy"></i>
+                    <span id="hud-score">0</span>
+                </div>
+                <div class="hud-stat distance-stat">
+                    <i class="fa-solid fa-person-running"></i>
+                    <span id="hud-distance">0m</span>
+                </div>
+                <div class="hud-stat coin-stat">
+                    <i class="fa-solid fa-coins"></i>
+                    <span id="hud-coins">0</span>
+                </div>
+                <button id="pause-btn" class="hud-icon-btn" aria-label="Pause Game">
+                    <i class="fa-solid fa-pause"></i>
+                </button>
+            </div>
+
+            <!-- Active Power-up Bar -->
+            <div id="powerup-bar" class="powerup-bar"></div>
+
+            <!-- Mobile Touch Controls -->
+            <div id="touch-controls" class="touch-controls">
+                <div class="touch-row">
+                    <button id="touch-up" class="touch-btn"><i class="fa-solid fa-arrow-up"></i> JUMP</button>
+                </div>
+                <div class="touch-row middle-row">
+                    <button id="touch-left" class="touch-btn"><i class="fa-solid fa-arrow-left"></i></button>
+                    <button id="touch-down" class="touch-btn"><i class="fa-solid fa-arrow-down"></i> SLIDE</button>
+                    <button id="touch-right" class="touch-btn"><i class="fa-solid fa-arrow-right"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Menu Overlay -->
+        <div id="main-menu" class="ui-screen active">
+            <div class="menu-content">
+                <div class="logo-container">
+                    <div class="sub-title">AHMEDABAD & GANDHINAGAR EDITION</div>
+                    <h1 class="main-title">CITY RUN</h1>
+                    <div class="tagline"><i class="fa-solid fa-star"></i> Ultimate Kids 3D Runner <i class="fa-solid fa-star"></i></div>
+                </div>
+
+                <!-- Selected Character Display Card -->
+                <div class="character-preview-card">
+                    <div class="char-badge">READY TO RUN</div>
+                    <div id="selected-char-avatar" class="char-avatar-circle">
+                        <span id="char-avatar-emoji">🐭</span>
+                    </div>
+                    <h2 id="selected-char-name">Mickey Mouse</h2>
+                    <p id="selected-char-desc">Fast & Nimble! Magnet Bonus Ability.</p>
+                    <button id="open-char-select-btn" class="secondary-btn">
+                        <i class="fa-solid fa-user-gear"></i> CHANGE CHARACTER
+                    </button>
+                </div>
+
+                <div class="menu-actions">
+                    <button id="start-game-btn" class="primary-btn pulse-anim">
+                        <i class="fa-solid fa-play"></i> START RUNNING!
+                    </button>
+                    <div class="high-score-display">
+                        <i class="fa-solid fa-crown"></i> HIGH SCORE: <span id="menu-high-score">0</span>
+                    </div>
+                </div>
+
+                <!-- Instructions / Controls Info -->
+                <div class="controls-guide">
+                    <div class="guide-item"><span><i class="fa-solid fa-arrow-left"></i> <i class="fa-solid fa-arrow-right"></i></span> Switch Lane</div>
+                    <div class="guide-item"><span><i class="fa-solid fa-arrow-up"></i></span> Jump</div>
+                    <div class="guide-item"><span><i class="fa-solid fa-arrow-down"></i></span> Slide</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Character Selection Modal Screen -->
+        <div id="char-select-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-icons"></i> Choose Your Hero</h2>
+                    <button id="close-char-select-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="character-grid" id="character-grid">
+                    <!-- Cards will be populated dynamically by UI manager -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Modal -->
+        <div id="pause-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel small-modal">
+                <h2><i class="fa-solid fa-pause"></i> GAME PAUSED</h2>
+                <div class="pause-actions">
+                    <button id="resume-btn" class="primary-btn"><i class="fa-solid fa-play"></i> RESUME</button>
+                    <button id="sound-toggle-btn" class="secondary-btn"><i class="fa-solid fa-volume-high"></i> SOUND: ON</button>
+                    <button id="restart-btn" class="secondary-btn"><i class="fa-solid fa-rotate-right"></i> RESTART</button>
+                    <button id="quit-btn" class="danger-btn"><i class="fa-solid fa-house"></i> MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel">
+                <div class="game-over-header">
+                    <h1 id="game-over-title">OUTSTANDING RUN!</h1>
+                    <p id="game-over-subtitle">You explored Gujarat in style!</p>
+                </div>
+
+                <div class="results-grid">
+                    <div class="result-card">
+                        <i class="fa-solid fa-trophy result-icon"></i>
+                        <div class="result-label">FINAL SCORE</div>
+                        <div id="final-score" class="result-val">0</div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fa-solid fa-person-running result-icon"></i>
+                        <div class="result-label">DISTANCE</div>
+                        <div id="final-distance" class="result-val">0m</div>
+                    </div>
+                    <div class="result-card">
+                        <i class="fa-solid fa-coins result-icon"></i>
+                        <div class="result-label">COINS</div>
+                        <div id="final-coins" class="result-val">0</div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon-emoji">🍡</div>
+                        <div class="result-label">JALEBI / FAFDA</div>
+                        <div id="final-snacks" class="result-val">0</div>
+                    </div>
+                </div>
+
+                <!-- Unlocked Badge -->
+                <div id="achievement-badge" class="achievement-badge">
+                    <i class="fa-solid fa-medal"></i>
+                    <div>
+                        <div class="badge-title" id="badge-title">Ahmedabad Explorer</div>
+                        <div class="badge-desc" id="badge-desc">You ran past Atal Bridge & Sidi Saiyyed Jali!</div>
+                    </div>
+                </div>
+
+                <div class="game-over-actions">
+                    <button id="play-again-btn" class="primary-btn pulse-anim">
+                        <i class="fa-solid fa-rotate-right"></i> RUN AGAIN
+                    </button>
+                    <button id="menu-return-btn" class="secondary-btn">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Game Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/monuments.js"></script>
+    <script src="js/obstacles.js"></script>
+    <script src="js/collectibles.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
