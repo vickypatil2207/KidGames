@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>3D Archery Game - Cartoon Heroes & Bow Master</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Three.js 3D Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- 3D WebGL Canvas -->
+        <canvas id="game-canvas"></canvas>
+
+        <!-- Center Crosshair for Aiming -->
+        <div id="crosshair" class="crosshair">
+            <div class="crosshair-ring"></div>
+            <div class="crosshair-dot"></div>
+        </div>
+
+        <!-- In-Game HUD Overlay -->
+        <div id="hud" class="hud-overlay hidden">
+            <div class="hud-top">
+                <!-- Player Hero Badge -->
+                <div class="hud-player-badge">
+                    <div id="hud-char-avatar" class="hud-avatar">🦁</div>
+                    <div class="hud-player-info">
+                        <span id="hud-player-name" class="hud-name">Little Hero</span>
+                        <span id="hud-bow-name" class="hud-bow-name">Wooden Bow</span>
+                    </div>
+                </div>
+
+                <!-- Stats Group -->
+                <div class="hud-stats-group">
+                    <div class="hud-box">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span id="hud-score">0</span>
+                    </div>
+                    <div class="hud-box">
+                        <i class="fa-solid fa-flag-checkered"></i>
+                        <span>LVL <span id="hud-level">1</span></span>
+                    </div>
+                    <div class="hud-box">
+                        <i class="fa-solid fa-location-arrow"></i>
+                        <span id="hud-arrows">5</span> Left
+                    </div>
+                    <button id="pause-btn" class="hud-icon-btn" aria-label="Pause Game">
+                        <i class="fa-solid fa-pause"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Wind Gauge Widget -->
+            <div id="wind-gauge" class="wind-gauge-box">
+                <div class="wind-label"><i class="fa-solid fa-wind"></i> WIND</div>
+                <div class="wind-compass">
+                    <div id="wind-arrow-dir" class="wind-arrow"></div>
+                </div>
+                <div id="wind-speed-val" class="wind-speed-text">0.0 m/s</div>
+            </div>
+        </div>
+
+        <!-- Main Menu Screen -->
+        <div id="main-menu" class="ui-screen active">
+            <div class="menu-content">
+                <div class="logo-container">
+                    <div class="sub-title">3D CARTOON ARCHERY ADVENTURE</div>
+                    <h1 class="main-title">LITTLE ARCHER</h1>
+                    <div class="tagline">
+                        <i class="fa-solid fa-star" style="color: #FFC107;"></i>
+                        Master the Bow with Cartoon Heroes!
+                        <i class="fa-solid fa-star" style="color: #FFC107;"></i>
+                    </div>
+                </div>
+
+                <!-- Name Input -->
+                <div class="name-input-group">
+                    <i class="fa-solid fa-user-ninja"></i>
+                    <input type="text" id="player-name-input" placeholder="Enter Your Name..." maxlength="15">
+                </div>
+
+                <!-- Selected Previews Row -->
+                <div class="menu-previews-row">
+                    <!-- Character Card Preview -->
+                    <div class="preview-card">
+                        <div class="card-badge">SELECTED HERO</div>
+                        <div id="preview-char-avatar" class="preview-avatar">🦁</div>
+                        <div id="preview-char-name" class="preview-title">Little Singham</div>
+                        <div id="preview-char-desc" class="preview-desc">Lion Courage & Wind Resistance</div>
+                        <button id="open-char-select-btn" class="secondary-btn">
+                            <i class="fa-solid fa-user-gear"></i> CHANGE HERO
+                        </button>
+                    </div>
+
+                    <!-- Bow Card Preview -->
+                    <div class="preview-card">
+                        <div class="card-badge">SELECTED BOW</div>
+                        <div class="preview-avatar" style="background: radial-gradient(circle, #81D4FA 0%, #0288D1 100%);">
+                            <i id="preview-bow-icon" class="fa-solid fa-tree" style="color: #FFF;"></i>
+                        </div>
+                        <div id="preview-bow-name" class="preview-title">Wooden Classic</div>
+                        <div id="preview-bow-desc" class="preview-desc">Balanced power and traditional grip</div>
+                        <button id="open-bow-select-btn" class="secondary-btn">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i> CHANGE BOW
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Actions -->
+                <div class="menu-actions">
+                    <button id="open-level-select-btn" class="primary-btn pulse-anim">
+                        <i class="fa-solid fa-play"></i> PLAY GAME (SELECT LEVEL)
+                    </button>
+                    <div class="high-score-tag">
+                        <i class="fa-solid fa-crown"></i> HIGH SCORE: <span id="menu-high-score">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cartoon Character Selection Modal -->
+        <div id="char-select-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-icons"></i> Choose Your Favorite Cartoon Hero</h2>
+                    <button id="close-char-select-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="character-grid" id="character-grid">
+                    <!-- Populated dynamically by UIManager -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Bow Selection Modal -->
+        <div id="bow-select-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-bullseye"></i> Select Your Archery Bow</h2>
+                    <button id="close-bow-select-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="bow-grid" id="bow-grid">
+                    <!-- Populated dynamically by UIManager -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Level Selection Modal -->
+        <div id="level-select-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel">
+                <div class="modal-header">
+                    <h2><i class="fa-solid fa-map-location-dot"></i> Select Level (1 - 10)</h2>
+                    <button id="close-level-select-btn" class="close-btn"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+                <div class="level-grid" id="level-grid">
+                    <!-- Populated dynamically by UIManager -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pause Screen Modal -->
+        <div id="pause-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel small-modal">
+                <div class="modal-header" style="justify-content: center;">
+                    <h2><i class="fa-solid fa-pause"></i> GAME PAUSED</h2>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px;">
+                    <button id="resume-btn" class="primary-btn"><i class="fa-solid fa-play"></i> RESUME</button>
+                    <button id="sound-toggle-btn" class="secondary-btn"><i class="fa-solid fa-volume-high"></i> SOUND: ON</button>
+                    <button id="restart-btn" class="secondary-btn"><i class="fa-solid fa-rotate-right"></i> RESTART LEVEL</button>
+                    <button id="quit-btn" class="danger-btn"><i class="fa-solid fa-house"></i> MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Modal Screen -->
+        <div id="victory-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel results-modal">
+                <div class="results-header">
+                    <h1>VICTORY!</h1>
+                    <p style="color: #A7F3D0; font-size: 1.1rem;">Awesome Shooting, Champion!</p>
+                </div>
+                <div class="results-stars-display" id="vic-stars">
+                    <i class="fa-solid fa-star earned"></i>
+                    <i class="fa-solid fa-star earned"></i>
+                    <i class="fa-solid fa-star earned"></i>
+                </div>
+                <div class="results-stats-card">
+                    <div class="res-stat">
+                        <div class="res-label">TOTAL SCORE</div>
+                        <div id="vic-score" class="res-val">0</div>
+                    </div>
+                    <div class="res-stat">
+                        <div class="res-label">TARGETS CLEARED</div>
+                        <div id="vic-hits" class="res-val">0</div>
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button id="next-level-btn" class="primary-btn pulse-anim">
+                        <i class="fa-solid fa-forward"></i> NEXT LEVEL
+                    </button>
+                    <button id="menu-return-btn-vic" class="secondary-btn" onclick="window.gameInstance.ui.showScreen('main-menu')">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Defeat Modal Screen -->
+        <div id="defeat-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel results-modal">
+                <div class="results-header">
+                    <h1 style="background: linear-gradient(180deg, #FFF 0%, #EF5350 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TRY AGAIN!</h1>
+                    <p style="color: #FECACA; font-size: 1.1rem;">Don't give up! Draw back and aim carefully!</p>
+                </div>
+                <div class="results-stats-card">
+                    <div class="res-stat">
+                        <div class="res-label">YOUR SCORE</div>
+                        <div id="def-score" class="res-val">0</div>
+                    </div>
+                    <div class="res-stat">
+                        <div class="res-label">TARGET REQUIRED</div>
+                        <div id="def-req" class="res-val">0</div>
+                    </div>
+                </div>
+                <div class="results-actions">
+                    <button id="retry-level-btn" class="primary-btn pulse-anim">
+                        <i class="fa-solid fa-rotate-right"></i> RETRY LEVEL
+                    </button>
+                    <button id="menu-return-btn-def" class="secondary-btn" onclick="window.gameInstance.ui.showScreen('main-menu')">
+                        <i class="fa-solid fa-house"></i> MAIN MENU
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modular Game Scripts -->
+    <script src="js/audio.js"></script>
+    <script src="js/characters.js"></script>
+    <script src="js/bows.js"></script>
+    <script src="js/levels.js"></script>
+    <script src="js/targets.js"></script>
+    <script src="js/physics.js"></script>
+    <script src="js/renderer.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
