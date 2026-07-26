@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#ffebf0" />
+  <title>🧩 Block Blast Adventure - Kids Falling Blocks! 🌈</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧩%3C/text%3E%3C/svg%3E" />
+</head>
+<body>
+  <!-- Floating background bubbles for cartoon vibe -->
+  <div class="bubbles" aria-hidden="true">
+    <span></span><span></span><span></span><span></span>
+    <span></span><span></span><span></span><span></span>
+  </div>
+
+  <!-- Main Particle Canvas overlay for line clear & combo celebrations -->
+  <canvas id="particle-canvas" class="particle-canvas"></canvas>
+
+  <div class="app">
+    <!-- Header Controls -->
+    <header class="game-header">
+      <div class="brand">
+        <h1 class="game-title">
+          <span class="emoji">🧩</span> BLOCK BLAST <span class="badge">KIDS</span>
+        </h1>
+      </div>
+
+      <div class="header-actions">
+        <!-- Grid Mode Selection -->
+        <div class="selector-group">
+          <label for="grid-select" class="selector-label">📏 Grid Size:</label>
+          <select id="grid-select" class="custom-select">
+            <option value="8x8" selected>8 × 8 (Classic)</option>
+            <option value="12x12">12 × 12 (Big Board)</option>
+            <option value="6x9">6 × 9 (Compact)</option>
+            <option value="8x12">8 × 12 (Tall Tower)</option>
+          </select>
+        </div>
+
+        <button id="sound-btn" class="btn btn-icon" type="button" title="Toggle Sound" aria-label="Toggle Sound">
+          <span id="sound-icon">🔊</span>
+        </button>
+
+        <button id="pause-btn" class="btn btn-icon" type="button" title="Pause Game" aria-label="Pause Game">
+          <span>⏸️</span>
+        </button>
+
+        <button id="restart-btn" class="btn btn-icon btn-accent" type="button" title="New Game" aria-label="New Game">
+          <span>🔄</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Game Container -->
+    <main class="game-main">
+      <!-- Left Panel: Mascot & Stats -->
+      <aside class="side-panel left-panel">
+        <!-- Cute Cartoon Mascot -->
+        <div class="mascot-card" id="mascot-card">
+          <div class="mascot-bubble" id="mascot-bubble">
+            <span id="mascot-text">Ready to blast blocks? Let's go! 🎉</span>
+          </div>
+          <div class="mascot-avatar" id="mascot-avatar" role="button" tabindex="0" title="Click to change character!">
+            <span class="mascot-emoji" id="mascot-emoji">🐼</span>
+          </div>
+          <p class="mascot-hint">Tap me to switch buddy! ✨</p>
+        </div>
+
+        <!-- Hold Piece Box -->
+        <div class="preview-box">
+          <div class="preview-title">HOLD (Shift / H)</div>
+          <div id="hold-container" class="preview-canvas-container">
+            <canvas id="hold-canvas" width="100" height="100"></canvas>
+          </div>
+          <button id="swap-btn" class="btn btn-small" type="button">Swap 🔄</button>
+        </div>
+      </aside>
+
+      <!-- Center Panel: The Game Board Grid -->
+      <section class="board-container">
+        <div class="board-wrapper">
+          <div id="game-board" class="game-board" role="grid" aria-label="Falling blocks game grid">
+            <!-- Canvas or dynamic cells rendered by JS -->
+            <canvas id="board-canvas"></canvas>
+          </div>
+
+          <!-- Pause Overlay -->
+          <div id="pause-overlay" class="overlay hidden">
+            <div class="overlay-card">
+              <div class="overlay-emoji">⏸️</div>
+              <h2>Game Paused</h2>
+              <p>Take a breath! Ready to continue playing?</p>
+              <button id="resume-btn" class="btn btn-primary btn-lg" type="button">▶ Resume</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Panel: Score & Next Piece -->
+      <aside class="side-panel right-panel">
+        <!-- Score Card -->
+        <div class="score-card">
+          <div class="score-item">
+            <span class="score-label">⭐ SCORE</span>
+            <span class="score-value" id="score">0</span>
+          </div>
+          <div class="score-item highlight">
+            <span class="score-label">👑 BEST</span>
+            <span class="score-value" id="best-score">0</span>
+          </div>
+          <div class="score-item">
+            <span class="score-label">🚀 LEVEL</span>
+            <span class="score-value" id="level">1</span>
+          </div>
+          <div class="score-item">
+            <span class="score-label">✨ LINES</span>
+            <span class="score-value" id="lines">0</span>
+          </div>
+        </div>
+
+        <!-- Next Piece Box -->
+        <div class="preview-box">
+          <div class="preview-title">NEXT BLOCK</div>
+          <div id="next-container" class="preview-canvas-container">
+            <canvas id="next-canvas" width="100" height="100"></canvas>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <!-- On-screen Cartoon Controls for Touch/Mouse -->
+    <footer class="touch-controls-section">
+      <div class="controls-dpad">
+        <button id="btn-left" class="ctrl-btn ctrl-left" type="button" aria-label="Move Left">
+          <span>◀</span>
+          <small>Left</small>
+        </button>
+        <button id="btn-rotate" class="ctrl-btn ctrl-rotate" type="button" aria-label="Rotate Block">
+          <span>🔄</span>
+          <small>Rotate</small>
+        </button>
+        <button id="btn-right" class="ctrl-btn ctrl-right" type="button" aria-label="Move Right">
+          <span>▶</span>
+          <small>Right</small>
+        </button>
+      </div>
+
+      <div class="controls-actions">
+        <button id="btn-down" class="ctrl-btn ctrl-down" type="button" aria-label="Soft Drop">
+          <span>▼</span>
+          <small>Soft Drop</small>
+        </button>
+        <button id="btn-drop" class="ctrl-btn ctrl-drop" type="button" aria-label="Hard Drop">
+          <span>⚡</span>
+          <small>Hard Drop</small>
+        </button>
+      </div>
+    </footer>
+
+    <!-- Instructions Banner -->
+    <div class="game-instructions">
+      <span><b>Controls:</b> ◀ / ▶ Left / Right &nbsp;•&nbsp; ▲ Rotate &nbsp;•&nbsp; ▼ Soft Drop &nbsp;•&nbsp; [Space] Hard Drop &nbsp;•&nbsp; [Shift] Hold</span>
+    </div>
+  </div>
+
+  <!-- Game Over Modal -->
+  <div id="gameover-overlay" class="overlay hidden">
+    <div class="overlay-card gameover-card">
+      <div class="overlay-emoji" id="gameover-emoji">🥳</div>
+      <h2 id="gameover-title">Great Job!</h2>
+      <p id="gameover-message">You cleared many lines!</p>
+
+      <div class="gameover-stats">
+        <div class="stat-box">
+          <span>Final Score</span>
+          <strong id="final-score">0</strong>
+        </div>
+        <div class="stat-box">
+          <span>Lines Cleared</span>
+          <strong id="final-lines">0</strong>
+        </div>
+        <div class="stat-box">
+          <span>Level Reached</span>
+          <strong id="final-level">1</strong>
+        </div>
+      </div>
+
+      <div class="overlay-actions">
+        <button id="play-again-btn" class="btn btn-primary btn-lg" type="button">🎮 Play Again!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ES Modules -->
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
