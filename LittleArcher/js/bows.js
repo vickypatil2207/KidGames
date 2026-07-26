@@ -53,11 +53,12 @@ const BOWS = [
 class BowFactory {
     static createBowMesh(bowId) {
         const group = new THREE.Group();
+        group.name = "bow_mesh_group";
         const bowDef = BOWS.find(b => b.id === bowId) || BOWS[0];
 
         let handleColor = 0x5D4037;
         let limbColor = 0x8D6E63;
-        let stringColor = 0xEEEEEE;
+        let stringColor = 0xFFFFFF;
 
         if (bowId === 'compound') {
             handleColor = 0x263238;
@@ -78,19 +79,19 @@ class BowFactory {
         }
 
         // Center Handle / Riser
-        const handleGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.4, 16);
-        const handleMat = new THREE.MeshStandardMaterial({ color: handleColor, roughness: 0.4, metalness: 0.3 });
+        const handleGeo = new THREE.CylinderGeometry(0.035, 0.035, 0.35, 16);
+        const handleMat = new THREE.MeshStandardMaterial({ color: handleColor, roughness: 0.4, metalness: 0.4 });
         const handle = new THREE.Mesh(handleGeo, handleMat);
         group.add(handle);
 
-        // Upper & Lower Curved Limbs using Curve / Extrude
+        // Upper & Lower Curved Limbs (curving forward toward -Z)
         const curveUpper = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(0, 0.2, 0),
-            new THREE.Vector3(0, 0.6, -0.1),
-            new THREE.Vector3(0, 1.0, -0.2),
-            new THREE.Vector3(0, 1.2, 0.1)
+            new THREE.Vector3(0, 0.17, 0),
+            new THREE.Vector3(0, 0.5, -0.15),
+            new THREE.Vector3(0, 0.8, -0.2),
+            new THREE.Vector3(0, 1.0, 0.05)
         );
-        const limbGeoUpper = new THREE.TubeGeometry(curveUpper, 20, 0.025, 8, false);
+        const limbGeoUpper = new THREE.TubeGeometry(curveUpper, 20, 0.022, 8, false);
         const limbMat = new THREE.MeshStandardMaterial({ 
             color: limbColor, 
             roughness: 0.3, 
@@ -102,67 +103,69 @@ class BowFactory {
         group.add(limbUpper);
 
         const curveLower = new THREE.CubicBezierCurve3(
-            new THREE.Vector3(0, -0.2, 0),
-            new THREE.Vector3(0, -0.6, -0.1),
-            new THREE.Vector3(0, -1.0, -0.2),
-            new THREE.Vector3(0, -1.2, 0.1)
+            new THREE.Vector3(0, -0.17, 0),
+            new THREE.Vector3(0, -0.5, -0.15),
+            new THREE.Vector3(0, -0.8, -0.2),
+            new THREE.Vector3(0, -1.0, 0.05)
         );
-        const limbGeoLower = new THREE.TubeGeometry(curveLower, 20, 0.025, 8, false);
+        const limbGeoLower = new THREE.TubeGeometry(curveLower, 20, 0.022, 8, false);
         const limbLower = new THREE.Mesh(limbGeoLower, limbMat);
         group.add(limbLower);
 
         // Compound Bow Pulley Wheels
         if (bowId === 'compound' || bowId === 'doraemon_gadget') {
-            const wheelGeo = new THREE.CylinderGeometry(0.08, 0.08, 0.02, 16);
+            const wheelGeo = new THREE.CylinderGeometry(0.07, 0.07, 0.02, 16);
             const wheelMat = new THREE.MeshStandardMaterial({ color: 0x37474F, metalness: 0.9 });
             
             const wheelTop = new THREE.Mesh(wheelGeo, wheelMat);
             wheelTop.rotation.z = Math.PI / 2;
-            wheelTop.position.set(0, 1.2, 0.1);
+            wheelTop.position.set(0, 1.0, 0.05);
             group.add(wheelTop);
 
             const wheelBottom = new THREE.Mesh(wheelGeo, wheelMat);
             wheelBottom.rotation.z = Math.PI / 2;
-            wheelBottom.position.set(0, -1.2, 0.1);
+            wheelBottom.position.set(0, -1.0, 0.05);
             group.add(wheelBottom);
         }
 
-        // Bowstring
-        const stringMat = new THREE.LineBasicMaterial({ color: stringColor, linewidth: 2 });
+        // Bowstring (Rests at Z = +0.05; flexes BACKWARD toward positive Z when drawn)
+        const stringMat = new THREE.LineBasicMaterial({ color: stringColor, linewidth: 3 });
         const stringPoints = [
-            new THREE.Vector3(0, 1.2, 0.1),
-            new THREE.Vector3(0, 0, 0), // String nock position (will flex back during draw)
-            new THREE.Vector3(0, -1.2, 0.1)
+            new THREE.Vector3(0, 1.0, 0.05),
+            new THREE.Vector3(0, 0, 0.05), // Nock point flexes backward to +Z
+            new THREE.Vector3(0, -1.0, 0.05)
         ];
         const stringGeo = new THREE.BufferGeometry().setFromPoints(stringPoints);
         const stringLine = new THREE.Line(stringGeo, stringMat);
         stringLine.name = "bowString";
         group.add(stringLine);
 
-        // Scope sight on riser
+        // Scope sight ring on handle
         const sightGeo = new THREE.RingGeometry(0.02, 0.035, 16);
         const sightMat = new THREE.MeshBasicMaterial({ color: (bowId === 'doraemon_gadget') ? 0x00FF00 : 0xFF3D00, side: THREE.DoubleSide });
         const sight = new THREE.Mesh(sightGeo, sightMat);
-        sight.position.set(0, 0.15, 0.06);
+        sight.position.set(0, 0.12, -0.05); // Scope ring in front
         group.add(sight);
 
-        group.userData = { bowDef: bowDef, stringPoints: stringPoints, stringLine: stringLine };
+        group.userData = { bowDef, stringPoints, stringLine };
         return group;
     }
 
     static createArrowMesh(bowId) {
         const group = new THREE.Group();
+        group.name = "arrow_mesh_group";
         const bowDef = BOWS.find(b => b.id === bowId) || BOWS[0];
 
-        // Arrow Shaft
-        const shaftGeo = new THREE.CylinderGeometry(0.008, 0.008, 1.2, 12);
+        // Arrow Shaft (length 1.0, pointing towards -Z)
+        const shaftGeo = new THREE.CylinderGeometry(0.007, 0.007, 1.0, 12);
         const shaftMat = new THREE.MeshStandardMaterial({ color: 0x37474F, roughness: 0.5 });
         const shaft = new THREE.Mesh(shaftGeo, shaftMat);
-        shaft.rotation.x = Math.PI / 2;
+        shaft.rotation.x = Math.PI / 2; // Lie along Z axis
+        shaft.position.z = -0.5; // From Z = 0 (nock) to Z = -1.0 (tip)
         group.add(shaft);
 
-        // Arrow Metal Tip (Arrowhead)
-        const tipGeo = new THREE.ConeGeometry(0.018, 0.1, 12);
+        // Metal Arrowhead at front (Z = -1.0)
+        const tipGeo = new THREE.ConeGeometry(0.018, 0.09, 12);
         const tipMat = new THREE.MeshStandardMaterial({ 
             color: bowDef.arrowColor, 
             metalness: 0.9, 
@@ -171,17 +174,17 @@ class BowFactory {
             emissiveIntensity: 0.5 
         });
         const tip = new THREE.Mesh(tipGeo, tipMat);
-        tip.rotation.x = -Math.PI / 2;
-        tip.position.z = -0.65;
+        tip.rotation.x = -Math.PI / 2; // Point forward towards -Z
+        tip.position.z = -1.04;
         group.add(tip);
 
-        // Fletching Vanes (3 Feathers at back)
+        // Fletching Vanes (Feathers at back near Z = -0.05)
         const fletchMat = new THREE.MeshStandardMaterial({ color: bowDef.arrowColor, side: THREE.DoubleSide });
         for (let i = 0; i < 3; i++) {
-            const fletchGeo = new THREE.PlaneGeometry(0.04, 0.12);
+            const fletchGeo = new THREE.PlaneGeometry(0.035, 0.1);
             const fletch = new THREE.Mesh(fletchGeo, fletchMat);
             fletch.rotation.z = (i * Math.PI * 2 / 3);
-            fletch.position.set(Math.cos(i * Math.PI * 2 / 3) * 0.02, Math.sin(i * Math.PI * 2 / 3) * 0.02, 0.52);
+            fletch.position.set(Math.cos(i * Math.PI * 2 / 3) * 0.015, Math.sin(i * Math.PI * 2 / 3) * 0.015, -0.1);
             group.add(fletch);
         }
 

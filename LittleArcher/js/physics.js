@@ -1,28 +1,54 @@
 /* ==========================================================================
-   Arrow Physics & Collision Detection Engine
+   Arrow Physics & Collision Detection Engine (Kid-Friendly Direct Aiming)
    ========================================================================== */
 
 class PhysicsEngine {
     constructor() {
-        this.gravity = -9.8;
+        this.gravity = -5.0; // Reduced gravity for kid-friendly flat trajectory
     }
 
     /**
-     * Compute launch velocity vector based on aim angle, draw percentage, bow stats, and character perks.
+     * Compute launch velocity vector aimed directly toward the 3D world target point.
      */
-    calculateLaunchVelocity(aimDir, drawFactor, bowStats, charStats) {
-        const basePower = 35; // base m/s
+    calculateLaunchVelocityToPoint(startPos, targetPos, drawFactor, bowStats, charStats) {
+        const basePower = 60; // m/s for fast accurate flight
         const powerMult = (bowStats.power / 100) * (charStats.powerBoost || 1.0);
         const speedMult = (bowStats.speed / 100) * (charStats.speed || 1.0);
         
-        const launchSpeed = basePower * drawFactor * powerMult * speedMult;
-        return aimDir.clone().multiplyScalar(launchSpeed);
+        const launchSpeed = basePower * Math.max(drawFactor, 0.4) * powerMult * speedMult;
+
+        const dx = targetPos.x - startPos.x;
+        const dy = targetPos.y - startPos.y;
+        const dz = targetPos.z - startPos.z;
+        const distXZ = Math.hypot(dx, dz);
+
+        // Calculate elevation angle for parabolic arc to reach targetPos exactly
+        const v = launchSpeed;
+        const g = Math.abs(this.gravity);
+        const v2 = v * v;
+        const v4 = v2 * v2;
+
+        let pitchAngle = Math.atan2(dy, distXZ); // Default straight angle
+
+        // Projectile elevation formula: tan(theta) = (v^2 +- sqrt(v^4 - g(g x^2 + 2 y v^2))) / (g x)
+        const root = v4 - g * (g * distXZ * distXZ + 2 * dy * v2);
+        if (root >= 0) {
+            pitchAngle = Math.atan((v2 - Math.sqrt(root)) / (g * distXZ));
+        }
+
+        const yawAngle = Math.atan2(dx, -dz);
+
+        const vx = Math.sin(yawAngle) * Math.cos(pitchAngle) * launchSpeed;
+        const vy = Math.sin(pitchAngle) * launchSpeed;
+        const vz = -Math.cos(yawAngle) * Math.cos(pitchAngle) * launchSpeed;
+
+        return new THREE.Vector3(vx, vy, vz);
     }
 
     /**
      * Predict trajectory points array for drawing aim guide line.
      */
-    predictTrajectory(startPos, velocity, windVector, charStats, bowStats, stepCount = 30, dt = 0.05) {
+    predictTrajectory(startPos, velocity, windVector, charStats, bowStats, stepCount = 40, dt = 0.04) {
         const points = [];
         const currentPos = startPos.clone();
         const currentVel = velocity.clone();
@@ -43,8 +69,8 @@ class PhysicsEngine {
 
             currentPos.addScaledVector(currentVel, dt);
 
-            // Stop trajectory line if it hits ground (y <= 0)
-            if (currentPos.y <= 0) break;
+            // Stop trajectory line if it hits ground or far target distance
+            if (currentPos.y <= 0.1 || currentPos.z < -65) break;
         }
 
         return points;
@@ -60,7 +86,7 @@ class PhysicsEngine {
         dir.normalize();
 
         raycaster.set(arrowStartPos, dir);
-        raycaster.far = dist + 0.1;
+        raycaster.far = dist + 0.2;
 
         for (const targetGroup of targets) {
             if (!targetGroup.visible) continue;

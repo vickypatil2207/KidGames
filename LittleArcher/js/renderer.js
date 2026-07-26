@@ -12,12 +12,22 @@ class GameRenderer {
         this.particles = new ParticleSystem(this.scene);
         this.bowGroup = null;
         this.arrowInHand = null;
+        this.hero3DGroup = null;
         this.aimLine = null;
         this.activeArrowsInFlight = [];
 
-        // Camera presets
-        this.defaultCamPos = new THREE.Vector3(0, 1.7, 0);
-        this.camLookAt = new THREE.Vector3(0, 1.7, -30);
+        // Camera views
+        // Third-person stance (showing hero at beginning)
+        this.heroCamPos = new THREE.Vector3(1.2, 1.8, 1.8);
+        this.heroCamLookAt = new THREE.Vector3(-0.2, 1.4, -15);
+
+        // First-person aim stance (centered, clear view)
+        this.aimCamPos = new THREE.Vector3(0, 1.6, 0);
+        this.aimCamLookAt = new THREE.Vector3(0, 1.6, -30);
+
+        this.targetCamPos = this.heroCamPos.clone();
+        this.targetCamLookAt = this.heroCamLookAt.clone();
+
         this.arrowCamMode = false;
         this.trackedArrow = null;
 
@@ -38,8 +48,8 @@ class GameRenderer {
         this.scene.background = new THREE.Color(0x87CEEB); // Sky Blue
         this.scene.fog = new THREE.FogExp2(0x87CEEB, 0.005);
 
-        this.camera.position.copy(this.defaultCamPos);
-        this.camera.lookAt(this.camLookAt);
+        this.camera.position.copy(this.heroCamPos);
+        this.camera.lookAt(this.heroCamLookAt);
     }
 
     setupLights() {
@@ -152,9 +162,9 @@ class GameRenderer {
     setupAimLine() {
         const mat = new THREE.LineDashedMaterial({
             color: 0x00E5FF,
-            dashSize: 0.3,
-            gapSize: 0.15,
-            linewidth: 3
+            dashSize: 0.4,
+            gapSize: 0.2,
+            linewidth: 4
         });
         const geo = new THREE.BufferGeometry();
         this.aimLine = new THREE.Line(geo, mat);
@@ -173,44 +183,62 @@ class GameRenderer {
         this.aimLine.visible = true;
     }
 
-    setPlayerBow(bowId) {
-        if (this.bowGroup) {
-            this.scene.remove(this.bowGroup);
-        }
+    setPlayerConfig(charId, bowId) {
+        // 3D Cartoon Hero Standing beside player position
+        if (this.hero3DGroup) this.scene.remove(this.hero3DGroup);
+        this.hero3DGroup = CharacterFactory.create3DCharacter(charId);
+        this.hero3DGroup.position.set(-0.6, 0, -0.6);
+        this.hero3DGroup.rotation.y = Math.PI / 4;
+        this.scene.add(this.hero3DGroup);
+
+        // Player Bow setup (Shifted to bottom right so it doesn't block middle view)
+        if (this.bowGroup) this.scene.remove(this.bowGroup);
         this.bowGroup = BowFactory.createBowMesh(bowId);
-        // Position bow in player view hand
-        this.bowGroup.position.set(0.25, 1.45, -0.6);
-        this.bowGroup.rotation.y = Math.PI;
+        this.bowGroup.scale.set(0.65, 0.65, 0.65);
+        this.bowGroup.position.set(0.35, 1.1, -0.65);
+        this.bowGroup.rotation.set(0, 0, 0); // pointing forward toward -Z
         this.scene.add(this.bowGroup);
 
         this.setArrowInHand(bowId);
+        this.setHeroCamView();
     }
 
     setArrowInHand(bowId) {
-        if (this.arrowInHand) {
-            this.scene.remove(this.arrowInHand);
-        }
+        if (this.arrowInHand) this.scene.remove(this.arrowInHand);
         this.arrowInHand = BowFactory.createArrowMesh(bowId);
-        this.arrowInHand.position.set(0.25, 1.45, -0.6);
+        this.arrowInHand.scale.set(0.65, 0.65, 0.65);
+        this.arrowInHand.position.set(0.35, 1.1, -0.65);
         this.scene.add(this.arrowInHand);
     }
 
     updateBowDraw(drawFactor) {
         if (!this.bowGroup) return;
         
-        // Pull bowstring nock point back
+        // Pull bowstring nock point BACKWARDS toward positive Z (+Z is towards camera)
         const stringLine = this.bowGroup.userData.stringLine;
         if (stringLine) {
-            const pullZ = drawFactor * 0.45;
+            const pullZ = 0.05 + (drawFactor * 0.45);
             const positions = stringLine.geometry.attributes.position;
-            positions.setXYZ(1, 0, 0, pullZ); // Middle nock point flexes back
+            positions.setXYZ(1, 0, 0, pullZ);
             positions.needsUpdate = true;
         }
 
-        // Draw arrow back together with string
+        // Draw arrow back together with string (moves backward +Z)
         if (this.arrowInHand) {
-            this.arrowInHand.position.z = -0.6 + (drawFactor * 0.45);
+            this.arrowInHand.position.set(0.35, 1.1, -0.65 + (drawFactor * 0.45));
         }
+    }
+
+    setHeroCamView() {
+        this.arrowCamMode = false;
+        this.targetCamPos.copy(this.heroCamPos);
+        this.targetCamLookAt.copy(this.heroCamLookAt);
+    }
+
+    setAimCamView() {
+        this.arrowCamMode = false;
+        this.targetCamPos.copy(this.aimCamPos);
+        this.targetCamLookAt.copy(this.aimCamLookAt);
     }
 
     startArrowCamera(arrowMesh) {
@@ -218,23 +246,21 @@ class GameRenderer {
         this.trackedArrow = arrowMesh;
     }
 
-    resetCamera() {
-        this.arrowCamMode = false;
-        this.trackedArrow = null;
-        this.camera.position.copy(this.defaultCamPos);
-        this.camera.lookAt(this.camLookAt);
-    }
-
     update(delta) {
         this.particles.update(delta);
 
-        // Arrow Slow-Mo Camera tracking mode
+        // Arrow Tracking Camera
         if (this.arrowCamMode && this.trackedArrow) {
             const arrowPos = this.trackedArrow.position;
-            // Position camera slightly behind and above arrow
             const camTarget = arrowPos.clone().add(new THREE.Vector3(0, 0.4, 1.2));
             this.camera.position.lerp(camTarget, delta * 8.0);
             this.camera.lookAt(arrowPos);
+        } else {
+            // Smooth Camera interpolation between Hero View and Aim View
+            this.camera.position.lerp(this.targetCamPos, delta * 6.0);
+            
+            // Lerp camera lookAt
+            this.camera.lookAt(this.targetCamLookAt);
         }
     }
 

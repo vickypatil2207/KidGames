@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Core Game Loop & Controller
+   Core Game Loop & Controller (Kid-Friendly Direct Aiming & Auto-Lock)
    ========================================================================== */
 
 class ArcheryGame {
@@ -19,12 +19,13 @@ class ArcheryGame {
         this.windSpeed = 0;
 
         this.isAiming = false;
+        this.aimScreenPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
         this.aimStartPos = { x: 0, y: 0 };
-        this.aimCurrentPos = { x: 0, y: 0 };
         this.drawFactor = 0;
-        this.aimDirection = new THREE.Vector3(0, 0, -1);
+        this.currentTargetWorldPos = new THREE.Vector3(0, 1.6, -20);
+        this.isTargetLocked = false;
 
-        this.gameState = 'MENU'; // MENU, AIMING, ARROW_CAM, LEVEL_END, PAUSED
+        this.gameState = 'MENU'; // MENU, PLAYING, READY, AIMING, ARROW_CAM, LEVEL_END, PAUSED
 
         this.init();
     }
@@ -37,24 +38,29 @@ class ArcheryGame {
     }
 
     updatePlayerConfig() {
+        const charId = this.ui.selectedCharId;
         const bowId = this.ui.selectedBowId;
-        this.renderer.setPlayerBow(bowId);
+        this.renderer.setPlayerConfig(charId, bowId);
     }
 
     bindInputEvents() {
         const canvas = this.renderer.canvas;
 
         const onPointerDown = (e) => {
-            if (this.gameState !== 'PLAYING' && this.gameState !== 'AIMING') return;
+            if (this.gameState !== 'PLAYING' && this.gameState !== 'READY') return;
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
 
             this.isAiming = true;
             this.gameState = 'AIMING';
             this.aimStartPos = { x, y };
-            this.aimCurrentPos = { x, y };
-            this.drawFactor = 0.1;
+            this.aimScreenPos = { x, y };
+            this.drawFactor = 0.3;
 
+            // Transition camera from 3D Hero view to Aiming view!
+            this.renderer.setAimCamView();
+
+            this.updateAimingState(x, y);
             window.soundManager.playDrawString();
         };
 
@@ -63,31 +69,7 @@ class ArcheryGame {
             const x = e.touches ? e.touches[0].clientX : e.clientX;
             const y = e.touches ? e.touches[0].clientY : e.clientY;
 
-            this.aimCurrentPos = { x, y };
-
-            const dx = (this.aimStartPos.x - x) * 0.003;
-            const dy = (y - this.aimStartPos.y) * 0.003;
-
-            // Draw factor from backward drag distance
-            const dragDist = Math.hypot(x - this.aimStartPos.x, y - this.aimStartPos.y);
-            this.drawFactor = Math.min(Math.max(dragDist / 180, 0.1), 1.0);
-
-            // Update Aim Direction Vector
-            const pitch = Math.min(Math.max(dy, -0.6), 0.6);
-            const yaw = Math.min(Math.max(dx, -0.6), 0.6);
-
-            this.aimDirection.set(yaw, pitch + 0.05, -1).normalize();
-
-            // Update bow draw tension mesh & aim guide line
-            this.renderer.updateBowDraw(this.drawFactor);
-
-            const bowStats = BOWS.find(b => b.id === this.ui.selectedBowId).stats;
-            const charStats = CHARACTERS.find(c => c.id === this.ui.selectedCharId).stats;
-            const launchVel = this.physics.calculateLaunchVelocity(this.aimDirection, this.drawFactor, bowStats, charStats);
-            const startPos = new THREE.Vector3(0.25, 1.45, -0.6);
-
-            const points = this.physics.predictTrajectory(startPos, launchVel, this.windVector, charStats, bowStats);
-            this.renderer.updateAimLinePoints(points);
+            this.updateAimingState(x, y);
         };
 
         const onPointerUp = () => {
@@ -95,11 +77,19 @@ class ArcheryGame {
             this.isAiming = false;
             this.renderer.aimLine.visible = false;
 
-            if (this.drawFactor > 0.2 && this.arrowsLeft > 0) {
+            const crosshair = document.getElementById('crosshair');
+            if (crosshair) {
+                crosshair.classList.remove('target-locked');
+                crosshair.style.left = '50%';
+                crosshair.style.top = '50%';
+            }
+
+            if (this.drawFactor >= 0.3 && this.arrowsLeft > 0) {
                 this.shootArrow();
             } else {
                 this.renderer.updateBowDraw(0);
-                this.gameState = 'PLAYING';
+                this.renderer.setHeroCamView();
+                this.gameState = 'READY';
             }
         };
 
@@ -137,6 +127,94 @@ class ArcheryGame {
         });
     }
 
+    updateAimingState(screenX, screenY) {
+        this.aimScreenPos = { x: screenX, y: screenY };
+
+        // Position crosshair HTML element directly under mouse / finger touch
+        const crosshair = document.getElementById('crosshair');
+        if (crosshair) {
+            crosshair.style.left = `${screenX}px`;
+            crosshair.style.top = `${screenY}px`;
+        }
+
+        // Calculate string stretch draw factor from touch drag down
+        const pullDist = Math.max(screenY - this.aimStartPos.y, 0) + Math.abs(screenX - this.aimStartPos.x) * 0.3;
+        this.drawFactor = Math.min(Math.max(0.4 + (pullDist / 200), 0.4), 1.0);
+        this.renderer.updateBowDraw(this.drawFactor);
+
+        // Raycast from Camera through screen point (screenX, screenY) to 3D World space
+        const ndcX = (screenX / window.innerWidth) * 2 - 1;
+        const ndcY = -(screenY / window.innerHeight) * 2 + 1;
+
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), this.renderer.camera);
+
+        const targetDist = this.currentLevelDef ? this.currentLevelDef.distance : 20;
+        
+        // Plane at Z = -targetDist
+        const plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), targetDist);
+        const rayPoint = new THREE.Vector3();
+        raycaster.ray.intersectPlane(plane, rayPoint);
+
+        if (!rayPoint) {
+            rayPoint.set(0, 1.6, -targetDist);
+        }
+
+        // Kid Auto-Aim Magnet Snap to nearest active target
+        this.isTargetLocked = false;
+        let bestTargetPos = rayPoint.clone();
+        let minDistance = 2.2; // Snap radius in meters
+
+        for (const targetGroup of this.activeTargets) {
+            if (!targetGroup.visible) continue;
+
+            const tWorldPos = new THREE.Vector3();
+            targetGroup.getWorldPosition(tWorldPos);
+
+            const dist = rayPoint.distanceTo(tWorldPos);
+            if (dist < minDistance) {
+                minDistance = dist;
+                bestTargetPos.copy(tWorldPos);
+                this.isTargetLocked = true;
+            }
+        }
+
+        this.currentTargetWorldPos.copy(bestTargetPos);
+
+        // Update crosshair visual lock indicator
+        if (crosshair) {
+            if (this.isTargetLocked) {
+                crosshair.classList.add('target-locked');
+            } else {
+                crosshair.classList.remove('target-locked');
+            }
+        }
+
+        // Rotate Bow in 3D to face target point
+        const startPos = new THREE.Vector3(0.35, 1.1, -0.65);
+        const aimDir = this.currentTargetWorldPos.clone().sub(startPos).normalize();
+        const yaw = Math.atan2(aimDir.x, -aimDir.z);
+        const pitch = Math.asin(aimDir.y);
+
+        if (this.renderer.bowGroup) {
+            this.renderer.bowGroup.rotation.y = yaw;
+            this.renderer.bowGroup.rotation.x = -pitch;
+        }
+        if (this.renderer.arrowInHand) {
+            this.renderer.arrowInHand.rotation.y = yaw;
+            this.renderer.arrowInHand.rotation.x = -pitch;
+        }
+
+        // Calculate predicted trajectory line passing straight through crosshair target point
+        const bowStats = BOWS.find(b => b.id === this.ui.selectedBowId).stats;
+        const charStats = CHARACTERS.find(c => c.id === this.ui.selectedCharId).stats;
+
+        const launchVel = this.physics.calculateLaunchVelocityToPoint(startPos, this.currentTargetWorldPos, this.drawFactor, bowStats, charStats);
+        const points = this.physics.predictTrajectory(startPos, launchVel, this.windVector, charStats, bowStats);
+        
+        this.renderer.updateAimLinePoints(points);
+    }
+
     startLevel(levelId) {
         this.currentLevelDef = LEVELS.find(l => l.id === levelId) || LEVELS[0];
         this.score = 0;
@@ -153,8 +231,8 @@ class ArcheryGame {
         this.spawnLevelTargets();
 
         this.updatePlayerConfig();
-        this.renderer.resetCamera();
-        this.gameState = 'PLAYING';
+        this.renderer.setHeroCamView(); // Show 3D cartoon hero at beginning!
+        this.gameState = 'READY';
 
         this.ui.updateHUD(this.score, this.currentLevelDef.id, this.arrowsLeft, this.windSpeed, windAngle);
     }
@@ -197,8 +275,8 @@ class ArcheryGame {
         const bowStats = BOWS.find(b => b.id === this.ui.selectedBowId).stats;
         const charStats = CHARACTERS.find(c => c.id === this.ui.selectedCharId).stats;
 
-        const launchVel = this.physics.calculateLaunchVelocity(this.aimDirection, this.drawFactor, bowStats, charStats);
-        const startPos = new THREE.Vector3(0.25, 1.45, -0.6);
+        const startPos = new THREE.Vector3(0.35, 1.1, -0.65);
+        const launchVel = this.physics.calculateLaunchVelocityToPoint(startPos, this.currentTargetWorldPos, this.drawFactor, bowStats, charStats);
 
         const arrowMesh = BowFactory.createArrowMesh(this.ui.selectedBowId);
         arrowMesh.position.copy(startPos);
@@ -285,15 +363,18 @@ class ArcheryGame {
     }
 
     checkLevelStatus() {
-        this.renderer.resetCamera();
+        // Return to 3D Cartoon Hero camera view for next shot
+        this.renderer.setHeroCamView();
 
+        const remainingTargets = this.activeTargets.filter(t => t.visible).length;
         const passReq = this.currentLevelDef.passScore;
         const currentProgress = (this.currentLevelDef.targetType === 'target_board' || this.currentLevelDef.targetType === 'rotating_wheel' || this.currentLevelDef.targetType === 'boss_challenge') ? this.score : this.hitsCount;
 
-        if (this.arrowsLeft === 0 || currentProgress >= passReq) {
+        // Level only ends when player is OUT OF ARROWS or ALL TARGETS are destroyed!
+        if (this.arrowsLeft === 0 || remainingTargets === 0) {
             this.finishLevel(currentProgress >= passReq);
         } else {
-            this.gameState = 'PLAYING';
+            this.gameState = 'READY';
         }
     }
 
@@ -349,14 +430,14 @@ class ArcheryGame {
     }
 
     pauseGame() {
-        if (this.gameState === 'PLAYING' || this.gameState === 'AIMING') {
+        if (this.gameState === 'READY' || this.gameState === 'AIMING') {
             this.gameState = 'PAUSED';
             this.ui.showScreen('pause-screen');
         }
     }
 
     resumeGame() {
-        this.gameState = 'PLAYING';
+        this.gameState = 'READY';
         this.ui.showScreen('hud');
         document.getElementById('hud').classList.remove('hidden');
     }
@@ -415,7 +496,7 @@ class ArcheryGame {
             const hitResult = this.physics.checkCollision(prevPos, arrowObj.pos, this.activeTargets);
             if (hitResult.hit) {
                 this.onArrowHit(arrowObj, hitResult);
-            } else if (arrowObj.pos.y <= 0 || arrowObj.pos.z < -60) {
+            } else if (arrowObj.pos.y <= 0 || arrowObj.pos.z < -65) {
                 this.onArrowMiss(arrowObj);
             }
         });

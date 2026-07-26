@@ -881,6 +881,22 @@ html, body {
     box-shadow: 0 0 6px #FF5722;
 }
 
+.crosshair.target-locked .crosshair-ring {
+    border-color: #00E676;
+    box-shadow: 0 0 16px #00E676, inset 0 0 8px #00E676;
+    animation: lockPulse 0.6s infinite alternate;
+}
+
+.crosshair.target-locked .crosshair-dot {
+    background: #00E676;
+    box-shadow: 0 0 10px #00E676;
+}
+
+@keyframes lockPulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.2); }
+}
+
 /* ==========================================================================
    VICTORY & DEFEAT SCREENS
    ========================================================================== */
