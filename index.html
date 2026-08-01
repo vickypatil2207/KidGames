@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>KidGames — Fun Interactive Web Games Collection for Kids! 🎮</title>
+  <meta name="description" content="Explore a exciting collection of fun, colorful, interactive web games for kids! Play 3D runners, archery, brick breaker, ludo, 2048 fruit puzzle, tetris blocks, ping pong & more." />
+  <meta name="keywords" content="kid games, html5 games, browser games, 3d games, ludo, ping pong, archery, brick breaker, tictactoe, fruit puzzle" />
+  <meta name="theme-color" content="#0f172a" />
+  
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Floating Background Particle Canvas Overlay -->
+  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+
+  <!-- Main Container -->
+  <div class="app-container">
+    
+    <!-- Hero Header -->
+    <header class="hero-header">
+      <div class="brand-badge">
+        <span>✨</span> 9 Amazing Kids Web Games Collection <span>🚀</span>
+      </div>
+      <h1 class="hero-title">KidGames Arcade</h1>
+      <p class="hero-subtitle">
+        Jump straight into action! Smashing bricks, shooting 3D bullseyes, running through city monuments, or playing Ludo with friends — pick a game and play instantly in a new tab!
+      </p>
+
+      <div class="hero-actions">
+        <div class="stat-chip">
+          <i class="fa-solid fa-gamepad"></i>
+          <span>9 Playable Games</span>
+        </div>
+        <div class="stat-chip">
+          <i class="fa-solid fa-sparkles"></i>
+          <span>100% Free & No Ads</span>
+        </div>
+        <button id="btn-surprise" class="btn-surprise" type="button" title="Launch a random game!">
+          <i class="fa-solid fa-dice"></i> Surprise Me!
+        </button>
+      </div>
+    </header>
+
+    <!-- Toolbar: Search & Category Filter Section -->
+    <section class="toolbar-section" aria-label="Game Filter Toolbar">
+      <!-- Live Search Bar -->
+      <div class="search-wrapper">
+        <input 
+          id="search-input" 
+          class="search-input" 
+          type="text" 
+          placeholder="Search games, features or genres..." 
+          aria-label="Search games"
+        />
+        <i class="fa-solid fa-magnifying-glass"></i>
+      </div>
+
+      <!-- Category Filter Pills -->
+      <div class="filter-tabs" role="tablist" aria-label="Game Categories">
+        <button class="tab-btn active" data-category="all" role="tab" aria-selected="true">All Games (9)</button>
+        <button class="tab-btn" data-category="3d" role="tab" aria-selected="false">🎮 3D Games</button>
+        <button class="tab-btn" data-category="arcade" role="tab" aria-selected="false">⚡ Arcade & Action</button>
+        <button class="tab-btn" data-category="board" role="tab" aria-selected="false">🎲 Board & Strategy</button>
+        <button class="tab-btn" data-category="puzzle" role="tab" aria-selected="false">🧩 Puzzle & Brain</button>
+      </div>
+    </section>
+
+    <!-- Dynamic Games Listing Grid -->
+    <main id="games-grid" class="games-grid" aria-live="polite">
+      <!-- Game Cards will be rendered dynamically via JS -->
+    </main>
+
+    <!-- Footer -->
+    <footer class="portal-footer">
+      <div class="footer-brand">
+        Kid<span>Games</span> Collection
+      </div>
+      <p class="footer-text">
+        Crafted with ❤️ for fun, creative, and engaging playtime!
+      </p>
+      <nav class="footer-nav">
+        <a href="#games-grid" class="footer-link">All Games</a>
+        <a href="https://github.com/vickypatil2207/KidGames" target="_blank" rel="noopener noreferrer" class="footer-link">
+          <i class="fa-brands fa-github"></i> GitHub Repo
+        </a>
+      </nav>
+      <div class="footer-copy">
+        &copy; 2026 KidGames. Free & Open Source Web Arcade.
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- Application Logic JS -->
+  <script src="js/app.js"></script>
+</body>
+</html>

@@ -73,7 +73,7 @@ const LEVELS = [
         passScore: 35, // total points
         stars: { one: 35, two: 42, three: 48 },
         targets: [
-            { pos: [0, 1.8, -30], type: 'target_board', scale: 1.0 }
+            { pos: [0, 0, -30], type: 'target_board', scale: 1.0 }
         ]
     },
     {
@@ -110,7 +110,7 @@ const LEVELS = [
         passScore: 40,
         stars: { one: 40, two: 45, three: 50 },
         targets: [
-            { pos: [0, 2.0, -30], type: 'rotating_wheel', rotateSpeed: 1.2 }
+            { pos: [0, 0, -30], type: 'rotating_wheel', rotateSpeed: 1.2 }
         ]
     },
     {
@@ -125,7 +125,7 @@ const LEVELS = [
         passScore: 30,
         stars: { one: 30, two: 40, three: 46 },
         targets: [
-            { pos: [0, 1.8, -35], type: 'target_board', scale: 1.0 }
+            { pos: [0, 0, -35], type: 'target_board', scale: 1.0 }
         ]
     },
     {
@@ -159,7 +159,7 @@ const LEVELS = [
         targets: [
             { pos: [-2.0, 1.2, -22], type: 'bottle' },
             { pos: [-1.0, 1.6, -28], type: 'apple' },
-            { pos: [0.0, 1.8, -35], type: 'target_board', scale: 0.9 },
+            { pos: [0.0, 0, -35], type: 'target_board', scale: 0.9 },
             { pos: [1.2, 1.4, -25], type: 'football', bounceSpeed: 2.0, bounceAmp: 0.7 },
             { pos: [2.2, 2.1, -30], type: 'balloon', color: 0xFF1744, floatSpeed: 1.5 },
             { pos: [-0.5, 2.2, -32], type: 'balloon', color: 0x00E676, floatSpeed: 1.8 }
@@ -177,7 +177,7 @@ const LEVELS = [
         passScore: 60,
         stars: { one: 60, two: 75, three: 90 },
         targets: [
-            { pos: [0, 2.2, -40], type: 'boss_target', moveSpeed: 1.8, moveAmp: 3.5 }
+            { pos: [0, 0, -40], type: 'boss_target', moveSpeed: 1.8, moveAmp: 3.5 }
         ]
     }
 ];

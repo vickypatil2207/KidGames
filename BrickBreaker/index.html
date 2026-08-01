@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Super Brick Breaker Kids! 🧱✨</title>
+  <meta name="description" content="A fun, vibrant, 25-level Brick Breaker game for kids with cute paddle heroes, explosive power-ups, particles, and cool sound effects!">
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@500;700;900&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- External CSS Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+
+  <!-- Game Canvas Container Wrapper -->
+  <div id="game-wrapper">
+    
+    <!-- Top HUD Header -->
+    <header id="game-hud">
+      <div class="hud-badge">
+        <span class="hud-label">LEVEL</span>
+        <span id="hud-level" class="hud-value">1</span>
+      </div>
+
+      <div class="hud-badge">
+        <span class="hud-label">SCORE</span>
+        <span id="hud-score" class="hud-value">0</span>
+      </div>
+
+      <div class="hud-badge">
+        <span class="hud-label">LIVES</span>
+        <div id="hud-lives" class="lives-container">
+          <i class="fa-solid fa-heart"></i>
+          <i class="fa-solid fa-heart"></i>
+          <i class="fa-solid fa-heart"></i>
+        </div>
+      </div>
+
+      <div class="hud-controls">
+        <button id="sound-btn" class="hud-btn" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+        <button id="pause-btn" class="hud-btn" title="Pause Game" aria-label="Pause Game">⏸️</button>
+      </div>
+    </header>
+
+    <!-- Canvas Game Container -->
+    <div id="canvas-container">
+      <canvas id="game-canvas" width="800" height="600"></canvas>
+      
+      <!-- Power-up Toast Notification -->
+      <div id="powerup-toast">⚡ LASER PADDLE ACTIVATED!</div>
+    </div>
+
+    <!-- Bottom Controls & Hints -->
+    <footer id="controls-bar">
+      <span class="desktop-controls-tip">
+        💡 <b>Controls:</b> Move Mouse or <b>Left/Right Arrows / A-D</b>. Press <b>Spacebar</b> to Launch Ball / Shoot Lasers!
+      </span>
+
+      <div class="mobile-buttons">
+        <button id="btn-left" class="mobile-btn">◀ LEFT</button>
+        <button id="btn-action" class="mobile-btn" style="background: var(--primary-yellow);">🚀 LAUNCH / FIRE</button>
+        <button id="btn-right" class="mobile-btn">RIGHT ▶</button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- START / MAIN MENU MODAL -->
+  <div id="start-modal" class="modal-overlay">
+    <div class="modal-card">
+      <h1 class="game-title">BRICK BREAKER</h1>
+      <p class="game-subtitle">Super Kid Champions! 🚀✨</p>
+
+      <!-- Hero Selector -->
+      <div class="modal-section">
+        <div class="modal-section-title">Choose Your Paddle Hero</div>
+        <div class="hero-grid">
+          <div class="hero-card active" data-hero="kitty">
+            <span class="hero-icon">🐱</span>
+            <span class="hero-name">Kitty Paw</span>
+          </div>
+          <div class="hero-card" data-hero="rocket">
+            <span class="hero-icon">🚀</span>
+            <span class="hero-name">Cosmic Rocket</span>
+          </div>
+          <div class="hero-card" data-hero="unicorn">
+            <span class="hero-icon">🦄</span>
+            <span class="hero-name">Magic Horn</span>
+          </div>
+          <div class="hero-card" data-hero="robo">
+            <span class="hero-icon">🤖</span>
+            <span class="hero-name">Robo Shield</span>
+          </div>
+        </div>
+      </div>
+
+      <button id="btn-play-start" class="primary-btn">
+        <i class="fa-solid fa-play"></i> START GAME!
+      </button>
+
+      <button id="btn-open-levels" class="secondary-btn" style="width: 100%; margin-top: 10px;">
+        <i class="fa-solid fa-map"></i> SELECT LEVEL (1-25)
+      </button>
+    </div>
+  </div>
+
+  <!-- LEVEL SELECT MODAL -->
+  <div id="level-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 class="game-title" style="font-size: 1.8rem;">SELECT LEVEL</h2>
+      <p class="game-subtitle">25 Epic Levels to Master!</p>
+
+      <div class="modal-section">
+        <div id="levels-grid" class="levels-grid">
+          <!-- 25 Level Buttons generated dynamically -->
+        </div>
+      </div>
+
+      <button id="btn-close-levels" class="secondary-btn" style="width: 100%;">
+        <i class="fa-solid fa-arrow-left"></i> BACK TO MENU
+      </button>
+    </div>
+  </div>
+
+  <!-- LEVEL WIN MODAL -->
+  <div id="win-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 class="game-title" style="font-size: 2rem;">LEVEL CLEAR! 🎉</h2>
+      <p id="win-message" class="game-subtitle">Awesome Job, Superstar!</p>
+
+      <div class="star-rating" id="win-stars">
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+        <i class="fa-solid fa-star"></i>
+      </div>
+
+      <div class="modal-section">
+        <div style="display: flex; justify-content: space-around; font-size: 1.1rem; font-weight: 700;">
+          <div>Score: <span id="win-score-text" style="color: var(--primary-yellow);">0</span></div>
+          <div>High Score: <span id="win-high-text" style="color: var(--primary-cyan);">0</span></div>
+        </div>
+      </div>
+
+      <div class="modal-btn-row">
+        <button id="btn-replay-level" class="secondary-btn">
+          <i class="fa-solid fa-rotate-right"></i> REPLAY
+        </button>
+        <button id="btn-next-level" class="primary-btn">
+          <i class="fa-solid fa-forward"></i> NEXT LEVEL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME OVER MODAL -->
+  <div id="gameover-modal" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h2 class="game-title" style="font-size: 2rem; background: linear-gradient(135deg, #ef4444, #f97316); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">TRY AGAIN! 💔</h2>
+      <p class="game-subtitle">Don't give up! You can do it!</p>
+
+      <div class="modal-section">
+        <div style="font-size: 1.2rem; font-weight: 700;">
+          Final Score: <span id="gameover-score-text" style="color: var(--primary-yellow);">0</span>
+        </div>
+      </div>
+
+      <div class="modal-btn-row">
+        <button id="btn-menu-gameover" class="secondary-btn">
+          <i class="fa-solid fa-house"></i> MENU
+        </button>
+        <button id="btn-retry-gameover" class="primary-btn" style="background: linear-gradient(135deg, #3b82f6, #2563eb);">
+          <i class="fa-solid fa-rotate-right"></i> TRY AGAIN
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modular JavaScript Engine Files -->
+  <script src="js/audio.js"></script>
+  <script src="js/levels.js"></script>
+  <script src="js/powerups.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

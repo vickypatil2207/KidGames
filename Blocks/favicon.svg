@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect x="5" y="5" width="90" height="90" rx="24" fill="#2B2D42" />
+  <!-- Puzzle Grid / Blocks -->
+  <rect x="18" y="18" width="28" height="28" rx="6" fill="#FF595E" />
+  <rect x="54" y="18" width="28" height="28" rx="6" fill="#FFCA3A" />
+  <rect x="18" y="54" width="28" height="28" rx="6" fill="#8AC926" />
+  <rect x="54" y="54" width="28" height="28" rx="6" fill="#1982C4" />
+  <!-- Inner Highlights -->
+  <rect x="22" y="22" width="10" height="10" rx="3" fill="#FFF" opacity="0.4" />
+  <rect x="58" y="22" width="10" height="10" rx="3" fill="#FFF" opacity="0.4" />
+  <rect x="22" y="58" width="10" height="10" rx="3" fill="#FFF" opacity="0.4" />
+  <rect x="58" y="58" width="10" height="10" rx="3" fill="#FFF" opacity="0.4" />
+</svg>

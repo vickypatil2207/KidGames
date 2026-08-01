@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Super Ping Pong Champions! 🏓</title>
+  <meta name="description" content="A fun, colorful, kid-friendly Table Tennis game with cartoon paddles, power speed-ups, particle effects, and cool sound effects!">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+  <!-- Main Game Container -->
+  <div id="game-wrapper">
+    <!-- Top HUD / Header -->
+    <header id="game-hud">
+      <div class="hud-item player-score-box">
+        <span class="hud-label">YOU</span>
+        <span id="player-score" class="score-num">0</span>
+      </div>
+
+      <div class="hud-center">
+        <div id="rally-counter" class="rally-badge">RALLY: <span id="rally-count">0</span></div>
+        <button id="sound-btn" class="hud-btn" title="Toggle Sound" aria-label="Toggle Sound">🔊</button>
+        <button id="pause-btn" class="hud-btn" title="Pause Game" aria-label="Pause Game">⏸️</button>
+      </div>
+
+      <div class="hud-item ai-score-box">
+        <span class="hud-label">ROBOT</span>
+        <span id="ai-score" class="score-num">0</span>
+      </div>
+    </header>
+
+    <!-- Canvas Game Area -->
+    <div id="canvas-container">
+      <canvas id="game-canvas"></canvas>
+      
+      <!-- Countdown Overlay -->
+      <div id="countdown-overlay" class="hidden">
+        <span id="countdown-text">3</span>
+      </div>
+      
+      <!-- Speed Up Notification Overlay -->
+      <div id="speedup-overlay" class="hidden">
+        <span>⚡ SPEED UP! ⚡</span>
+      </div>
+    </div>
+
+    <!-- Controls Bar / Footer -->
+    <footer id="controls-bar">
+      <span class="control-tip">💡 <b>Controls:</b> Touch & Drag, Move Mouse, or <b>Arrow Keys</b> / <b>A & D</b> / <b>W & S</b></span>
+    </footer>
+  </div>
+
+  <!-- Start Screen Overlay -->
+  <div id="start-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="cartoon-banner">
+        <h1>🏓 PING PONG 🏓</h1>
+        <p class="subtitle">Super Kid Champions!</p>
+      </div>
+
+      <!-- Avatar Selector -->
+      <div class="section-box">
+        <h3>Choose Your Paddle Hero!</h3>
+        <div class="avatar-grid">
+          <button class="avatar-card active" data-avatar="kitty">
+            <span class="avatar-icon">🐱</span>
+            <span class="avatar-name">Kitty Paw</span>
+          </button>
+          <button class="avatar-card" data-avatar="froggy">
+            <span class="avatar-icon">🐸</span>
+            <span class="avatar-name">Froggy</span>
+          </button>
+          <button class="avatar-card" data-avatar="rocket">
+            <span class="avatar-icon">🚀</span>
+            <span class="avatar-name">Rocket</span>
+          </button>
+          <button class="avatar-card" data-avatar="star">
+            <span class="avatar-icon">⭐</span>
+            <span class="avatar-name">Star Paddle</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Difficulty Selector -->
+      <div class="section-box">
+        <h3>Select Difficulty</h3>
+        <div class="difficulty-options">
+          <button class="diff-btn active" data-diff="easy">😊 Easy</button>
+          <button class="diff-btn" data-diff="medium">😎 Medium</button>
+          <button class="diff-btn" data-diff="hard">🔥 Super Star</button>
+        </div>
+      </div>
+
+      <!-- Start Button -->
+      <button id="start-btn" class="big-pulse-btn">PLAY GAME! 🚀</button>
+    </div>
+  </div>
+
+  <!-- Pause Modal Overlay -->
+  <div id="pause-modal" class="modal-overlay hidden">
+    <div class="modal-card small-card">
+      <h2>⏸️ GAME PAUSED</h2>
+      <div class="modal-buttons">
+        <button id="resume-btn" class="action-btn green-btn">▶️ RESUME</button>
+        <button id="restart-btn" class="action-btn yellow-btn">🔄 RESTART</button>
+        <button id="menu-btn" class="action-btn blue-btn">🏠 MAIN MENU</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Win / Loss GameOver Modal Overlay -->
+  <div id="gameover-modal" class="modal-overlay hidden">
+    <canvas id="confetti-canvas"></canvas>
+    <div class="modal-card gameover-card">
+      <div id="gameover-icon" class="result-icon">🏆</div>
+      <h2 id="gameover-title">YOU WIN!</h2>
+      <p id="gameover-msg">Awesome job! You're a Ping Pong Champion!</p>
+
+      <div class="final-score-box">
+        <div class="final-score-item">
+          <span>YOU</span>
+          <span id="final-player-score">5</span>
+        </div>
+        <span class="score-vs">-</span>
+        <div class="final-score-item">
+          <span>ROBOT</span>
+          <span id="final-ai-score">3</span>
+        </div>
+      </div>
+
+      <div class="modal-buttons">
+        <button id="play-again-btn" class="big-pulse-btn">PLAY AGAIN! 🏓</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/audio.js"></script>
+  <script src="js/particles.js"></script>
+  <script src="js/ai.js"></script>
+  <script src="js/physics.js"></script>
+  <script src="js/renderer.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>

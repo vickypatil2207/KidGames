@@ -18,6 +18,7 @@ class TargetFactory {
             ior: 1.5
         });
         const body = new THREE.Mesh(bodyGeo, glassMat);
+        body.name = "bottle_mesh";
         body.position.y = 0.225;
         group.add(body);
 
@@ -49,6 +50,7 @@ class TargetFactory {
         const appleGeo = new THREE.SphereGeometry(0.15, 16, 16);
         const appleMat = new THREE.MeshStandardMaterial({ color: 0xFF1744, roughness: 0.3 });
         const apple = new THREE.Mesh(appleGeo, appleMat);
+        apple.name = "apple_mesh";
         apple.position.y = 0.15;
         group.add(apple);
 
@@ -84,6 +86,7 @@ class TargetFactory {
         const ballGeo = new THREE.SphereGeometry(0.22, 24, 24);
         const ballMat = new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4 });
         const ball = new THREE.Mesh(ballGeo, ballMat);
+        ball.name = "football_mesh";
         ball.position.y = 0.22;
         group.add(ball);
 
@@ -120,24 +123,26 @@ class TargetFactory {
         const boardBackGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.1, 32);
         const boardBackMat = new THREE.MeshStandardMaterial({ color: 0x3E2723, roughness: 0.6 });
         const boardBack = new THREE.Mesh(boardBackGeo, boardBackMat);
+        boardBack.name = "board_back";
         boardBack.rotation.x = Math.PI / 2;
         boardBack.position.y = 1.8;
         group.add(boardBack);
 
         // Concentric Point Rings
         const ringColors = [
-            { r: 0.85, color: 0xFFFFFF, points: 2 }, // Outer White (1-2 pts)
-            { r: 0.68, color: 0x212121, points: 4 }, // Black (3-4 pts)
-            { r: 0.51, color: 0x29B6F6, points: 6 }, // Blue (5-6 pts)
-            { r: 0.34, color: 0xFF1744, points: 8 }, // Red (7-8 pts)
-            { r: 0.17, color: 0xFFC107, points: 10 } // Yellow Bullseye (9-10 pts)
+            { r: 0.85, color: 0xFFFFFF, points: 2, z: 0.051 }, // Outer White (1-2 pts)
+            { r: 0.68, color: 0x212121, points: 4, z: 0.052 }, // Black (3-4 pts)
+            { r: 0.51, color: 0x29B6F6, points: 6, z: 0.053 }, // Blue (5-6 pts)
+            { r: 0.34, color: 0xFF1744, points: 8, z: 0.054 }, // Red (7-8 pts)
+            { r: 0.17, color: 0xFFC107, points: 10, z: 0.055 } // Yellow Bullseye (9-10 pts)
         ];
 
         ringColors.forEach(rc => {
             const ringGeo = new THREE.CircleGeometry(rc.r, 32);
             const ringMat = new THREE.MeshStandardMaterial({ color: rc.color, side: THREE.DoubleSide });
             const ring = new THREE.Mesh(ringGeo, ringMat);
-            ring.position.set(0, 1.8, 0.052);
+            ring.name = "target_ring";
+            ring.position.set(0, 1.8, rc.z);
             ring.userData = { points: rc.points };
             group.add(ring);
         });
@@ -146,8 +151,9 @@ class TargetFactory {
         const bullseyeGeo = new THREE.CircleGeometry(0.07, 32);
         const bullseyeMat = new THREE.MeshStandardMaterial({ color: 0xFF9800 });
         const bullseye = new THREE.Mesh(bullseyeGeo, bullseyeMat);
-        bullseye.position.set(0, 1.8, 0.054);
-        bullseye.userData = { points: 10, isBullseye: true };
+        bullseye.name = "bullseye";
+        bullseye.position.set(0, 1.8, 0.056);
+        bullseye.userData = { points: 50, isBullseye: true };
         group.add(bullseye);
 
         return group;
@@ -168,6 +174,7 @@ class TargetFactory {
             emissiveIntensity: 0.15
         });
         const balloon = new THREE.Mesh(balloonGeo, balloonMat);
+        balloon.name = "balloon_mesh";
         balloon.position.y = 0.3;
         group.add(balloon);
 
@@ -187,18 +194,70 @@ class TargetFactory {
         const group = new THREE.Group();
         group.name = "rotating_wheel_target";
 
-        const baseBoard = TargetFactory.createTargetBoard();
-        group.add(baseBoard);
+        // Wooden Stand Tripod on ground
+        const legMat = new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.7 });
+        for (let i = 0; i < 3; i++) {
+            const legGeo = new THREE.CylinderGeometry(0.03, 0.04, 2.2, 12);
+            const leg = new THREE.Mesh(legGeo, legMat);
+            const angle = (i * Math.PI * 2 / 3);
+            leg.position.set(Math.sin(angle) * 0.4, 0.9, Math.cos(angle) * 0.4);
+            leg.rotation.z = Math.sin(angle) * -0.2;
+            leg.rotation.x = Math.cos(angle) * 0.2;
+            group.add(leg);
+        }
+
+        // Wheel Spinner subgroup centered at (0, 1.8, 0)
+        const wheelSpinner = new THREE.Group();
+        wheelSpinner.name = "wheel_spinner";
+        wheelSpinner.position.set(0, 1.8, 0);
+
+        // Circular Ring Target Board (Backing disc)
+        const boardBackGeo = new THREE.CylinderGeometry(0.9, 0.9, 0.1, 32);
+        const boardBackMat = new THREE.MeshStandardMaterial({ color: 0x3E2723, roughness: 0.6 });
+        const boardBack = new THREE.Mesh(boardBackGeo, boardBackMat);
+        boardBack.name = "board_back";
+        boardBack.rotation.x = Math.PI / 2;
+        wheelSpinner.add(boardBack);
+
+        // Concentric Point Rings
+        const ringColors = [
+            { r: 0.85, color: 0xFFFFFF, points: 2, z: 0.051 },
+            { r: 0.68, color: 0x212121, points: 4, z: 0.052 },
+            { r: 0.51, color: 0x29B6F6, points: 6, z: 0.053 },
+            { r: 0.34, color: 0xFF1744, points: 8, z: 0.054 },
+            { r: 0.17, color: 0xFFC107, points: 10, z: 0.055 }
+        ];
+
+        ringColors.forEach(rc => {
+            const ringGeo = new THREE.CircleGeometry(rc.r, 32);
+            const ringMat = new THREE.MeshStandardMaterial({ color: rc.color, side: THREE.DoubleSide });
+            const ring = new THREE.Mesh(ringGeo, ringMat);
+            ring.name = "target_ring";
+            ring.position.set(0, 0, rc.z);
+            ring.userData = { points: rc.points };
+            wheelSpinner.add(ring);
+        });
+
+        // Center Bullseye Dot
+        const bullseyeGeo = new THREE.CircleGeometry(0.07, 32);
+        const bullseyeMat = new THREE.MeshStandardMaterial({ color: 0xFF9800 });
+        const bullseye = new THREE.Mesh(bullseyeGeo, bullseyeMat);
+        bullseye.name = "bullseye";
+        bullseye.position.set(0, 0, 0.056);
+        bullseye.userData = { points: 50, isBullseye: true };
+        wheelSpinner.add(bullseye);
 
         // Attached apples around perimeter
         for (let i = 0; i < 4; i++) {
             const apple = TargetFactory.createApple();
+            apple.name = "wheel_apple";
             const angle = (i * Math.PI / 2);
-            apple.position.set(Math.cos(angle) * 0.6, 1.8 + Math.sin(angle) * 0.6, 0.1);
+            apple.position.set(Math.cos(angle) * 0.6, Math.sin(angle) * 0.6, 0.1);
             apple.scale.set(0.7, 0.7, 0.7);
-            group.add(apple);
+            wheelSpinner.add(apple);
         }
 
+        group.add(wheelSpinner);
         return group;
     }
 
@@ -226,6 +285,23 @@ class TargetFactory {
         const barrel = new THREE.Mesh(barrelGeo, barrelMat);
         barrel.position.y = -0.4;
         return barrel;
+    }
+
+    static getTargetCenterWorldPosition(targetGroup) {
+        const worldPos = new THREE.Vector3();
+        const centerObj = targetGroup.getObjectByName('bullseye') || 
+                          targetGroup.getObjectByName('bottle_mesh') || 
+                          targetGroup.getObjectByName('apple_mesh') || 
+                          targetGroup.getObjectByName('football_mesh') || 
+                          targetGroup.getObjectByName('balloon_mesh') ||
+                          targetGroup.getObjectByName('board_back');
+        
+        if (centerObj) {
+            centerObj.getWorldPosition(worldPos);
+        } else {
+            targetGroup.getWorldPosition(worldPos);
+        }
+        return worldPos;
     }
 }
 

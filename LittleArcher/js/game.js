@@ -160,26 +160,23 @@ class ArcheryGame {
             rayPoint.set(0, 1.6, -targetDist);
         }
 
-        // Kid Auto-Aim Magnet Snap to nearest active target
+        // Kid Auto-Aim Visual Indicator (without forcing player aim location)
         this.isTargetLocked = false;
-        let bestTargetPos = rayPoint.clone();
-        let minDistance = 2.2; // Snap radius in meters
+        let minDistance = 2.5; // Visual lock indicator distance threshold
 
         for (const targetGroup of this.activeTargets) {
             if (!targetGroup.visible) continue;
 
-            const tWorldPos = new THREE.Vector3();
-            targetGroup.getWorldPosition(tWorldPos);
-
+            const tWorldPos = TargetFactory.getTargetCenterWorldPosition(targetGroup);
             const dist = rayPoint.distanceTo(tWorldPos);
             if (dist < minDistance) {
                 minDistance = dist;
-                bestTargetPos.copy(tWorldPos);
                 this.isTargetLocked = true;
             }
         }
 
-        this.currentTargetWorldPos.copy(bestTargetPos);
+        // Direct aiming: Arrow flies precisely to where crosshair rayPoint is aimed
+        this.currentTargetWorldPos.copy(rayPoint);
 
         // Update crosshair visual lock indicator
         if (crosshair) {
@@ -309,7 +306,17 @@ class ArcheryGame {
         let points = 10;
         let isBullseye = false;
 
-        if (targetType === 'bottle') {
+        if (targetType === 'rotating_wheel' && (hitObj.name === 'apple_mesh' || hitObj.name === 'wheel_apple' || (hitObj.parent && hitObj.parent.name === 'apple_target'))) {
+            points = 15;
+            window.soundManager.playAppleSlice();
+            this.renderer.particles.spawnShatter(hitResult.point, 0xFF1744, 14);
+            let appleObj = hitObj;
+            while (appleObj && appleObj.name !== 'wheel_apple' && appleObj.name !== 'apple_target' && appleObj.parent && appleObj.parent !== group) {
+                appleObj = appleObj.parent;
+            }
+            if (appleObj) appleObj.visible = false;
+            this.hitsCount++;
+        } else if (targetType === 'bottle') {
             points = 20;
             window.soundManager.playBottleShatter();
             this.renderer.particles.spawnShatter(hitResult.point, 0x00E676, 18);
@@ -333,11 +340,31 @@ class ArcheryGame {
             this.renderer.particles.spawnShatter(hitResult.point, group.userData.color || 0xFF1744, 20);
             group.visible = false;
             this.hitsCount++;
-        } else if (hitObj.userData.points || targetType === 'target_board' || targetType === 'boss_target') {
-            points = hitObj.userData.points || 10;
-            if (hitObj.userData.isBullseye) {
+        } else if (hitObj.userData.points != null || targetType === 'target_board' || targetType === 'rotating_wheel' || targetType === 'boss_target') {
+            // Calculate precise 2D radial distance from hit point to target center
+            const hitPoint = hitResult.point;
+            const localHit = group.worldToLocal(hitPoint.clone());
+            let targetCenterY = 1.8;
+            if (targetType === 'boss_target') targetCenterY = 1.8 * 1.4;
+
+            const dx = localHit.x;
+            const dy = localHit.y - targetCenterY;
+            let r = Math.hypot(dx, dy);
+            if (targetType === 'boss_target') r /= 1.4;
+
+            if (r <= 0.09 || hitObj.userData.isBullseye) {
                 points = 50;
                 isBullseye = true;
+            } else if (r <= 0.22) {
+                points = 10;
+            } else if (r <= 0.40) {
+                points = 8;
+            } else if (r <= 0.58) {
+                points = 6;
+            } else if (r <= 0.76) {
+                points = 4;
+            } else {
+                points = 2;
             }
             window.soundManager.playBullseyeGong();
             this.hitsCount++;
@@ -384,7 +411,7 @@ class ArcheryGame {
         let stars = 0;
         if (passed) {
             const st = this.currentLevelDef.stars;
-            const val = (this.currentLevelDef.targetType === 'target_board' || this.currentLevelDef.targetType === 'boss_challenge') ? this.score : this.hitsCount;
+            const val = (this.currentLevelDef.targetType === 'target_board' || this.currentLevelDef.targetType === 'rotating_wheel' || this.currentLevelDef.targetType === 'boss_challenge') ? this.score : this.hitsCount;
             if (val >= st.three) stars = 3;
             else if (val >= st.two) stars = 2;
             else stars = 1;
@@ -460,7 +487,12 @@ class ArcheryGame {
                 t.position.y = uData.initialPos[1] + Math.sin(time * uData.floatSpeed) * 0.4;
             }
             if (uData.rotateSpeed) {
-                t.rotation.z += delta * uData.rotateSpeed;
+                const spinner = t.getObjectByName("wheel_spinner");
+                if (spinner) {
+                    spinner.rotation.z += delta * uData.rotateSpeed;
+                } else {
+                    t.rotation.z += delta * uData.rotateSpeed;
+                }
             }
             if (uData.railSpeed) {
                 t.position.x = uData.initialPos[0] + Math.sin(time * uData.railSpeed) * uData.railDist;

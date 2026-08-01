@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect x="5" y="5" width="90" height="90" rx="24" fill="#0284C7" />
+  <!-- Paddle Body -->
+  <circle cx="46" cy="44" r="26" fill="#EF4444" stroke="#FFF" stroke-width="3" />
+  <!-- Paddle Handle -->
+  <path d="M 58 62 L 74 82 C 76 84 72 88 68 86 L 50 68 Z" fill="#D97706" />
+  <!-- Ping Pong Ball -->
+  <circle cx="72" cy="30" r="10" fill="#FFC700" stroke="#FFF" stroke-width="2" />
+  <path d="M 68 25 Q 70 30 76 33" stroke="#FFF" stroke-width="1.5" fill="none" opacity="0.6" />
+</svg>

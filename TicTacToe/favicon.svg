@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100">
+  <rect x="5" y="5" width="90" height="90" rx="24" fill="#7C3AED" />
+  <!-- Grid Lines -->
+  <line x1="38" y1="20" x2="38" y2="80" stroke="#DDD6FE" stroke-width="4" stroke-linecap="round" />
+  <line x1="62" y1="20" x2="62" y2="80" stroke="#DDD6FE" stroke-width="4" stroke-linecap="round" />
+  <line x1="20" y1="38" x2="80" y2="38" stroke="#DDD6FE" stroke-width="4" stroke-linecap="round" />
+  <line x1="20" y1="62" x2="80" y2="62" stroke="#DDD6FE" stroke-width="4" stroke-linecap="round" />
+  <!-- X mark top left -->
+  <line x1="24" y1="24" x2="34" y2="34" stroke="#FF4D6D" stroke-width="4" stroke-linecap="round" />
+  <line x1="34" y1="24" x2="24" y2="34" stroke="#FF4D6D" stroke-width="4" stroke-linecap="round" />
+  <!-- O mark center -->
+  <circle cx="50" cy="50" r="6" stroke="#00F0FF" stroke-width="4" fill="none" />
+  <!-- X mark bottom right -->
+  <line x1="66" y1="66" x2="76" y2="76" stroke="#FF4D6D" stroke-width="4" stroke-linecap="round" />
+  <line x1="76" y1="66" x2="66" y2="76" stroke="#FF4D6D" stroke-width="4" stroke-linecap="round" />
+</svg>
