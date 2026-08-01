@@ -15,11 +15,13 @@ class UIManager {
         ];
 
         this.selectedCharId = 'mickey';
+        this.showTouchControls = localStorage.getItem('cityrun_touch_controls') === 'on';
 
         this.initDOM();
         this.initEventListeners();
         this.populateCharacterGrid();
         this.updateHighScoreDisplay();
+        this.updateTouchControlsDisplay();
     }
 
     initDOM() {
@@ -36,6 +38,10 @@ class UIManager {
         this.hudCoins = document.getElementById('hud-coins');
         this.powerupBar = document.getElementById('powerup-bar');
         this.menuHighScore = document.getElementById('menu-high-score');
+
+        this.touchControls = document.getElementById('touch-controls');
+        this.menuTouchBtn = document.getElementById('menu-touch-toggle-btn');
+        this.pauseTouchBtn = document.getElementById('pause-touch-toggle-btn');
     }
 
     initEventListeners() {
@@ -43,12 +49,18 @@ class UIManager {
         document.getElementById('start-game-btn').addEventListener('click', () => this.game.startGame());
         document.getElementById('open-char-select-btn').addEventListener('click', () => this.showCharSelect(true));
         document.getElementById('close-char-select-btn').addEventListener('click', () => this.showCharSelect(false));
+        if (this.menuTouchBtn) {
+            this.menuTouchBtn.addEventListener('click', () => this.toggleTouchControls());
+        }
 
         // Pause Menu Buttons
         document.getElementById('pause-btn').addEventListener('click', () => this.game.pauseGame());
         document.getElementById('resume-btn').addEventListener('click', () => this.game.resumeGame());
         document.getElementById('restart-btn').addEventListener('click', () => this.game.restartGame());
         document.getElementById('quit-btn').addEventListener('click', () => this.game.quitToMenu());
+        if (this.pauseTouchBtn) {
+            this.pauseTouchBtn.addEventListener('click', () => this.toggleTouchControls());
+        }
         document.getElementById('sound-toggle-btn').addEventListener('click', (e) => {
             const isMuted = window.audioManager.toggleMute();
             e.currentTarget.innerHTML = isMuted ? '<i class="fa-solid fa-volume-xmark"></i> SOUND: OFF' : '<i class="fa-solid fa-volume-high"></i> SOUND: ON';
@@ -217,5 +229,28 @@ class UIManager {
 
     updateHighScoreDisplay() {
         this.menuHighScore.innerText = this.highScore;
+    }
+
+    toggleTouchControls() {
+        this.showTouchControls = !this.showTouchControls;
+        localStorage.setItem('cityrun_touch_controls', this.showTouchControls ? 'on' : 'off');
+        this.updateTouchControlsDisplay();
+    }
+
+    updateTouchControlsDisplay() {
+        const btnText = this.showTouchControls
+            ? '<i class="fa-solid fa-gamepad"></i> TOUCH BUTTONS: ON'
+            : '<i class="fa-solid fa-gamepad"></i> TOUCH BUTTONS: OFF';
+
+        if (this.menuTouchBtn) this.menuTouchBtn.innerHTML = btnText;
+        if (this.pauseTouchBtn) this.pauseTouchBtn.innerHTML = btnText;
+
+        if (this.touchControls) {
+            if (this.showTouchControls) {
+                this.touchControls.classList.remove('hidden');
+            } else {
+                this.touchControls.classList.add('hidden');
+            }
+        }
     }
 }

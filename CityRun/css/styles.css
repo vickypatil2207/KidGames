@@ -21,6 +21,7 @@ html, body {
     position: relative;
     width: 100vw;
     height: 100vh;
+    height: 100dvh;
     overflow: hidden;
 }
 
@@ -377,12 +378,14 @@ html, body {
     left: 0;
     width: 100%;
     height: 100%;
+    height: 100dvh;
     z-index: 5;
     pointer-events: none;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    padding: 1rem;
+    padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom)) 1rem;
+    overflow: hidden;
 }
 
 .hud-top {
@@ -485,13 +488,24 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
+    gap: 0.4rem;
+    margin-bottom: max(0.4rem, env(safe-area-inset-bottom));
+    width: 100%;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 0 0.5rem;
+}
+
+.touch-controls.hidden {
+    display: none !important;
 }
 
 .touch-row {
     display: flex;
-    gap: 0.8rem;
+    gap: 0.6rem;
+    width: 100%;
+    justify-content: center;
 }
 
 .middle-row {
@@ -499,21 +513,22 @@ html, body {
 }
 
 .touch-btn {
-    width: 70px;
-    height: 60px;
-    border-radius: 16px;
+    height: clamp(42px, 6.5vh, 56px);
+    min-height: 42px;
+    border-radius: 14px;
     background: rgba(255, 255, 255, 0.2);
     backdrop-filter: blur(8px);
     border: 2px solid rgba(255, 255, 255, 0.3);
     color: #ffffff;
-    font-size: 1.2rem;
+    font-size: clamp(0.85rem, 3.5vw, 1.1rem);
     font-weight: 800;
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     touch-action: manipulation;
+    padding: 0 0.4rem;
 }
 
 .touch-btn:active {
@@ -521,8 +536,19 @@ html, body {
     transform: scale(0.95);
 }
 
-#touch-up, #touch-down {
-    width: 140px;
+#touch-left, #touch-right {
+    flex: 1;
+    max-width: 75px;
+}
+
+#touch-down {
+    flex: 2;
+    max-width: 150px;
+}
+
+#touch-up {
+    width: 100%;
+    max-width: 150px;
 }
 
 /* Game Over Results */
@@ -609,8 +635,4 @@ html, body {
 }
 
 /* Responsiveness */
-@media (min-width: 768px) {
-    .touch-controls {
-        display: none; /* Desktop uses keyboard arrows */
-    }
-}
+/* Touch controls visibility is managed via user setting (TOUCH BUTTONS: ON / OFF) */
