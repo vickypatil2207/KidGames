@@ -54,9 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!container) return;
     container.innerHTML = '';
 
+    const avatars = (window.SL && window.SL.AVATARS) ? window.SL.AVATARS : [
+      { id: 'dog',   name: 'Puppy', emoji: '🐶', color: '#ef4444', border: '#b91c1c' },
+      { id: 'cat',   name: 'Kitty', emoji: '🐱', color: '#3b82f6', border: '#1d4ed8' },
+      { id: 'rabbit',name: 'Bunny', emoji: '🐰', color: '#10b981', border: '#047857' },
+      { id: 'bear',  name: 'Bear',  emoji: '🐻', color: '#f59e0b', border: '#b45309' }
+    ];
+
     const count = selectedMode === 'computer' ? 1 : selectedPlayerCount;
     for (let i = 0; i < count; i++) {
-      const avatar = window.SL.AVATARS[i];
+      const avatar = avatars[i % avatars.length];
       const div = document.createElement('div');
       div.className = 'name-input-group';
       div.innerHTML = `
