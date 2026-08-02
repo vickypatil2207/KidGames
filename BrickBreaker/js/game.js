@@ -60,9 +60,8 @@ class BrickBreakerGame {
 
     // Virtual width fixed at 800 for consistent brick grid & paddle proportions
     const virtualWidth = 800;
-    // Calculate dynamic virtual height matching container aspect ratio (min 600)
-    const containerAspect = rect.height / rect.width;
-    const virtualHeight = Math.max(600, Math.round(virtualWidth * containerAspect));
+    // Calculate dynamic virtual height matching exact container aspect ratio
+    const virtualHeight = Math.max(600, Math.round(virtualWidth * (rect.height / rect.width)));
 
     this.renderer.width = virtualWidth;
     this.renderer.height = virtualHeight;

@@ -1,214 +1,338 @@
 /**
- * Board.js
- * Renders the 10x10 grid in classic snake-pattern layout, owns the
- * snake and ladder definitions, and exposes helpers to convert cell
- * numbers to (row, col) coordinates.
- *
- * Numbering:
- *   1 → 10 : left  → right  (bottom row)
- *   11 → 20: right → left
- *   21 → 30: left  → right
- *   ...
- *   91 → 100: right → left (top row)
- *
- * Cells are appended to the DOM in the order they should visually
- * appear (left → right, row by row from top to bottom), so what you
- * see in the DOM is exactly what you see on screen.
+ * board.js
+ * Manages 10x10 zigzag grid layout, coordinate translation,
+ * and SVG rendering of kid-friendly cartoon snakes and 3D wooden ladders.
  */
 window.SL = window.SL || {};
-const { Snake, Ladder } = window.SL;
 
 window.SL.Board = class Board {
-  /**
-   * @param {HTMLElement} container - The element that will host the grid.
-   */
   constructor(container) {
     this.container = container;
-    this.size      = 10;        // 10x10
-    this.cells     = [];        // cell elements indexed 1..100
-    this.snakes    = [];
-    this.ladders   = [];
+    this.size = 10; // 10x10 grid
+    this.cells = {}; // Map cell number -> DOM element
 
-    this._defineEntities();
-    this._renderGrid();
-    this._renderOverlay();
+    // Ladders: { start, end, color }
+    this.ladders = [
+      { start: 4,  end: 25, color: '#f59e0b' },
+      { start: 13, end: 46, color: '#10b981' },
+      { start: 28, end: 76, color: '#8b5cf6' },
+      { start: 42, end: 63, color: '#ec4899' },
+      { start: 50, end: 69, color: '#06b6d4' },
+      { start: 62, end: 81, color: '#f97316' },
+      { start: 74, end: 92, color: '#14b8a6' }
+    ];
+
+    // Snakes: { head, tail, color, spotColor }
+    this.snakes = [
+      { head: 27, tail: 5,  color: '#22c55e', spotColor: '#15803d' },
+      { head: 43, tail: 18, color: '#f97316', spotColor: '#c2410c' },
+      { head: 54, tail: 31, color: '#a855f7', spotColor: '#6b21a8' },
+      { head: 66, tail: 45, color: '#eab308', spotColor: '#a16207' },
+      { head: 89, tail: 53, color: '#ef4444', spotColor: '#991b1b' },
+      { head: 95, tail: 77, color: '#06b6d4', spotColor: '#0e7490' },
+      { head: 99, tail: 2,  color: '#ec4899', spotColor: '#be185d' }
+    ];
+
+    this.init();
   }
 
-  /* ---------- Setup ---------- */
+  init() {
+    this.renderGrid();
+    this.renderOverlay();
+    
+    // Auto re-render SVG on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => this.renderOverlay(), 100);
+    });
 
-  _defineEntities() {
-    // Kid-friendly set. Numbers chosen to be fun and not too punishing.
-    this.ladders.push(new Ladder( 4, 25, '#ffb938'));
-    this.ladders.push(new Ladder( 9, 31, '#ff7eb6'));
-    this.ladders.push(new Ladder(21, 42, '#7ed957'));
-    this.ladders.push(new Ladder(28, 56, '#4ec5ff'));
-    this.ladders.push(new Ladder(36, 57, '#b07cff'));
-    this.ladders.push(new Ladder(51, 72, '#ff8a3d'));
-    this.ladders.push(new Ladder(71, 92, '#5dd6c9'));
-    this.ladders.push(new Ladder(80, 99, '#ff5d8f'));
-
-    this.snakes.push(new Snake( 17,  7, '#3aa757'));
-    this.snakes.push(new Snake( 54, 34, '#3aa757'));
-    this.snakes.push(new Snake( 62, 37, '#3aa757'));
-    this.snakes.push(new Snake( 64, 60, '#3aa757'));
-    this.snakes.push(new Snake( 87, 36, '#3aa757'));
-    this.snakes.push(new Snake( 93, 73, '#3aa757'));
-    this.snakes.push(new Snake( 95, 75, '#3aa757'));
-    this.snakes.push(new Snake( 98, 79, '#3aa757'));
-  }
-
-  /**
-   * Render cells into the DOM in the exact order they should visually
-   * appear. Row 0 of the DOM is the TOP of the board.
-   */
-  _renderGrid() {
-    this.container.innerHTML = '';
-    for (let domRow = 0; domRow < this.size; domRow++) {
-      const decade = (this.size - 1) - domRow;   // top row = decade 9, bottom = decade 0
-      const start  = decade * this.size + 1;
-      const end    = start + this.size - 1;
-      // Even decades render left-to-right, odd decades render right-to-left
-      // (matches the user's required numbering).
-      if (decade % 2 === 0) {
-        for (let n = start; n <= end; n++) this._appendCell(n);
-      } else {
-        for (let n = end; n >= start; n--) this._appendCell(n);
-      }
+    if (window.ResizeObserver) {
+      new ResizeObserver(() => this.renderOverlay()).observe(this.container);
     }
   }
 
-  _appendCell(n) {
+  /**
+   * Convert cell number (1-100) to grid row & column.
+   * Row 0 = top of visual board, Row 9 = bottom of visual board.
+   * Numbering starts at 1 at bottom-left (Row 9, Col 0).
+   */
+  getGridCoord(n) {
+    const decade = Math.floor((n - 1) / this.size); // 0 = 1..10, 9 = 91..100
+    const colInDec = (n - 1) % this.size;
+    const row = (this.size - 1) - decade; // row 9 is decade 0
+    // Even decades (0, 2, 4...) move left-to-right (col 0 -> 9)
+    // Odd decades (1, 3, 5...) move right-to-left (col 9 -> 0)
+    const col = (decade % 2 === 0) ? colInDec : (this.size - 1 - colInDec);
+    return { row, col };
+  }
+
+  /**
+   * Render the 100 tiles into container
+   */
+  renderGrid() {
+    this.container.innerHTML = '';
+    this.cells = {};
+
+    const gridEl = document.createElement('div');
+    gridEl.className = 'board-grid';
+
+    // Loop through 0..9 DOM rows (top to bottom)
+    for (let row = 0; row < this.size; row++) {
+      const decade = (this.size - 1) - row;
+      const start = decade * this.size + 1;
+      const end = start + this.size - 1;
+
+      if (decade % 2 === 0) {
+        for (let n = start; n <= end; n++) this._createCell(gridEl, n, row);
+      } else {
+        for (let n = end; n >= start; n--) this._createCell(gridEl, n, row);
+      }
+    }
+
+    this.container.appendChild(gridEl);
+  }
+
+  _createCell(parent, n, domRow) {
     const cell = document.createElement('div');
-    const decade = Math.floor((n - 1) / this.size);
-    cell.className = `cell decade-${decade} ` + (this._isDarkCell(n) ? 'dark' : 'light');
+    const coord = this.getGridCoord(n);
+    const isAlt = (coord.row + coord.col) % 2 === 1;
+
+    cell.className = `board-tile ${isAlt ? 'tile-alt' : 'tile-main'}`;
     cell.dataset.num = n;
-    if (n === 1)   cell.classList.add('cell-start');
-    if (n === 100) cell.classList.add('cell-finish');
 
-    const num = document.createElement('span');
-    num.className = 'num';
-    num.textContent = n;
-    cell.appendChild(num);
+    if (n === 1) cell.classList.add('tile-start');
+    if (n === 100) cell.classList.add('tile-finish');
 
-    this.container.appendChild(cell);
+    const numSpan = document.createElement('span');
+    numSpan.className = 'tile-num';
+    numSpan.textContent = n;
+    cell.appendChild(numSpan);
+
+    if (n === 1) {
+      const badge = document.createElement('span');
+      badge.className = 'tile-badge badge-start';
+      badge.textContent = '🚀 START';
+      cell.appendChild(badge);
+    } else if (n === 100) {
+      const badge = document.createElement('span');
+      badge.className = 'tile-badge badge-finish';
+      badge.textContent = '🏆 WIN';
+      cell.appendChild(badge);
+    }
+
+    parent.appendChild(cell);
     this.cells[n] = cell;
   }
 
-  _isDarkCell(n) {
-    const decade   = Math.floor((n - 1) / this.size);
-    const col      = (n - 1) % this.size;
-    const visualCol = (decade % 2 === 0) ? col : (this.size - 1 - col);
-    const domRow   = (this.size - 1) - decade;
-    return (visualCol + domRow) % 2 === 0;
-  }
-
-  /* ---------- Coordinate helpers ---------- */
-
   /**
-   * Convert a cell number to (row, col) in the rendered 10x10 grid where
-   * row 0 is the TOP of the board.
+   * Render SVG Overlay containing snakes & ladders overlaying the grid
    */
-  toGrid(n) {
-    const decade    = Math.floor((n - 1) / this.size);
-    const colInDec  = (n - 1) % this.size;
-    const domRow    = (this.size - 1) - decade;
-    const col       = (decade % 2 === 0) ? colInDec : (this.size - 1 - colInDec);
-    return { row: domRow, col };
-  }
+  renderOverlay() {
+    let svg = this.container.querySelector('svg.board-overlay');
+    if (svg) svg.remove();
 
-  /** Returns the cell DOM element for a given cell number. */
-  getCellEl(n) {
-    return this.cells[n];
-  }
+    const rect = this.container.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
 
-  /* ---------- SVG overlay for snakes & ladders ---------- */
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('class', 'board-overlay');
+    svg.setAttribute('viewBox', `0 0 ${rect.width} ${rect.height}`);
 
-  _renderOverlay() {
-    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('class', 'overlay');
-    svg.setAttribute('viewBox', `0 0 ${this.size} ${this.size}`);
-    svg.setAttribute('preserveAspectRatio', 'none');
+    // Add SVG filters & gradients for 3D depth
+    const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+    defs.innerHTML = `
+      <filter id="drop-shadow" x="-20%" y="-20%" width="140%" height="140%">
+        <feDropShadow dx="2" dy="4" stdDeviation="3" flood-opacity="0.3" flood-color="#000" />
+      </filter>
+    `;
+    svg.appendChild(defs);
 
-    // Draw ladders first so snakes sit on top visually.
-    this.ladders.forEach((ladder) => this._drawLadder(svg, ladder));
-    this.snakes.forEach((snake)   => this._drawSnake(svg, snake));
+    const cellW = rect.width / this.size;
+    const cellH = rect.height / this.size;
+
+    const getCenter = (n) => {
+      const { row, col } = this.getGridCoord(n);
+      return {
+        x: (col + 0.5) * cellW,
+        y: (row + 0.5) * cellH
+      };
+    };
+
+    // Draw Ladders first
+    this.ladders.forEach(l => this._drawLadder(svg, getCenter(l.start), getCenter(l.end), l.color, cellW));
+
+    // Draw Snakes second (on top)
+    this.snakes.forEach(s => this._drawSnake(svg, getCenter(s.head), getCenter(s.tail), s.color, s.spotColor, cellW));
 
     this.container.appendChild(svg);
   }
 
-  _drawLadder(svg, ladder) {
-    const a = this.toGrid(ladder.bottom);
-    const b = this.toGrid(ladder.top);
-    const railOffset = 0.15;
+  _drawLadder(svg, start, end, color, cellW) {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('filter', 'url(#drop-shadow)');
 
-    // Two rails
-    [ -railOffset, railOffset ].forEach((dx) => {
-      const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      line.setAttribute('class', 'ladder-rail snake-path');
-      line.setAttribute('x1', a.col + 0.5 + dx);
-      line.setAttribute('y1', a.row + 0.5);
-      line.setAttribute('x2', b.col + 0.5 + dx);
-      line.setAttribute('y2', b.row + 0.5);
-      line.setAttribute('stroke', ladder.color);
-      line.setAttribute('stroke-width', 0.12);
-      svg.appendChild(line);
-    });
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const dist = Math.hypot(dx, dy);
+    const angle = Math.atan2(dy, dx);
 
-    // Rungs every cell
-    const steps = Math.abs(b.row - a.row);
-    const dir   = b.row > a.row ? 1 : -1;
-    for (let i = 1; i < steps; i++) {
-      const t = i / steps;
-      const y = a.row + dir * i + 0.5;
-      const x = a.col + (b.col - a.col) * t + 0.5;
+    const railOffset = cellW * 0.18;
+    const rungWidth = cellW * 0.12;
+
+    // Perpendicular vector for rails
+    const px = Math.cos(angle + Math.PI / 2) * railOffset;
+    const py = Math.sin(angle + Math.PI / 2) * railOffset;
+
+    // Rail 1
+    const r1 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    r1.setAttribute('x1', start.x + px);
+    r1.setAttribute('y1', start.y + py);
+    r1.setAttribute('x2', end.x + px);
+    r1.setAttribute('y2', end.y + py);
+    r1.setAttribute('stroke', color);
+    r1.setAttribute('stroke-width', rungWidth);
+    r1.setAttribute('stroke-linecap', 'round');
+
+    // Rail 2
+    const r2 = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    r2.setAttribute('x1', start.x - px);
+    r2.setAttribute('y1', start.y - py);
+    r2.setAttribute('x2', end.x - px);
+    r2.setAttribute('y2', end.y - py);
+    r2.setAttribute('stroke', color);
+    r2.setAttribute('stroke-width', rungWidth);
+    r2.setAttribute('stroke-linecap', 'round');
+
+    group.appendChild(r1);
+    group.appendChild(r2);
+
+    // Rungs along the length
+    const numRungs = Math.max(2, Math.floor(dist / (cellW * 0.4)));
+    for (let i = 1; i < numRungs; i++) {
+      const t = i / numRungs;
+      const rx = start.x + dx * t;
+      const ry = start.y + dy * t;
+
       const rung = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-      rung.setAttribute('class', 'ladder-rung');
-      rung.setAttribute('x1', x - railOffset);
-      rung.setAttribute('y1', y);
-      rung.setAttribute('x2', x + railOffset);
-      rung.setAttribute('y2', y);
-      rung.setAttribute('stroke', ladder.color);
-      rung.setAttribute('stroke-width', 0.1);
-      svg.appendChild(rung);
+      rung.setAttribute('x1', rx + px);
+      rung.setAttribute('y1', ry + py);
+      rung.setAttribute('x2', rx - px);
+      rung.setAttribute('y2', ry - py);
+      rung.setAttribute('stroke', '#fbbf24');
+      rung.setAttribute('stroke-width', rungWidth * 0.7);
+      rung.setAttribute('stroke-linecap', 'round');
+      group.appendChild(rung);
     }
 
-    // Fun arrow at the top
-    this._addCellArt(ladder.top, '🪜', 'tl');
-    this._addCellArt(ladder.bottom, '🟢', 'br');
+    svg.appendChild(group);
   }
 
-  _drawSnake(svg, snake) {
-    const a = this.toGrid(snake.head);
-    const b = this.toGrid(snake.tail);
+  _drawSnake(svg, head, tail, color, spotColor, cellW) {
+    const group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    group.setAttribute('filter', 'url(#drop-shadow)');
 
-    // Smooth S-curve path between the two centers.
-    const cx1 = a.col + 0.5 + (b.col > a.col ? 0.6 : -0.6);
-    const cy1 = a.row + 0.5;
-    const cx2 = b.col + 0.5 + (b.col > a.col ? -0.6 : 0.6);
-    const cy2 = b.row + 0.5;
+    const dx = tail.x - head.x;
+    const dy = tail.y - head.y;
+    const dist = Math.hypot(dx, dy);
 
-    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-    path.setAttribute('class', 'snake-path');
-    path.setAttribute('d',
-      `M ${a.col + 0.5} ${a.row + 0.5}
-       C ${cx1} ${cy1}, ${cx2} ${cy2}, ${b.col + 0.5} ${b.row + 0.5}`
-    );
-    path.setAttribute('stroke', snake.color);
-    path.setAttribute('stroke-width', 0.32);
-    svg.appendChild(path);
+    // Wavy curve control points
+    const curveOffset = Math.min(dist * 0.3, cellW * 1.5);
+    const midX = (head.x + tail.x) / 2;
+    const midY = (head.y + tail.y) / 2;
 
-    // Snake head (emoji) at head cell
-    this._addCellArt(snake.head, '🐍', 'tl');
-    this._addCellArt(snake.tail, '🟤', 'br');
+    const perpX = -(tail.y - head.y) / dist;
+    const perpY = (tail.x - head.x) / dist;
+
+    const c1x = head.x + (tail.x - head.x) * 0.25 + perpX * curveOffset;
+    const c1y = head.y + (tail.y - head.y) * 0.25 + perpY * curveOffset;
+
+    const c2x = head.x + (tail.x - head.x) * 0.75 - perpX * curveOffset;
+    const c2y = head.y + (tail.y - head.y) * 0.75 - perpY * curveOffset;
+
+    const pathStr = `M ${head.x} ${head.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${tail.x} ${tail.y}`;
+
+    // Body
+    const body = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    body.setAttribute('d', pathStr);
+    body.setAttribute('fill', 'none');
+    body.setAttribute('stroke', color);
+    body.setAttribute('stroke-width', cellW * 0.3);
+    body.setAttribute('stroke-linecap', 'round');
+
+    // Spots on body
+    const bodyInner = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    bodyInner.setAttribute('d', pathStr);
+    bodyInner.setAttribute('fill', 'none');
+    bodyInner.setAttribute('stroke', spotColor);
+    bodyInner.setAttribute('stroke-width', cellW * 0.12);
+    bodyInner.setAttribute('stroke-dasharray', `${cellW * 0.15} ${cellW * 0.2}`);
+    bodyInner.setAttribute('stroke-linecap', 'round');
+
+    group.appendChild(body);
+    group.appendChild(bodyInner);
+
+    // Cartoon Snake Head (Big friendly circle with cute eyes & tongue)
+    const headRadius = cellW * 0.26;
+    const headAngle = Math.atan2(c1y - head.y, c1x - head.x);
+
+    const headCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    headCircle.setAttribute('cx', head.x);
+    headCircle.setAttribute('cy', head.y);
+    headCircle.setAttribute('r', headRadius);
+    headCircle.setAttribute('fill', color);
+    group.appendChild(headCircle);
+
+    // Eyes
+    const eyeOffset = headRadius * 0.45;
+    const eyeRadius = headRadius * 0.35;
+    const pupilRadius = eyeRadius * 0.5;
+
+    [-0.6, 0.6].forEach(side => {
+      const ex = head.x + Math.cos(headAngle + side) * eyeOffset;
+      const ey = head.y + Math.sin(headAngle + side) * eyeOffset;
+
+      const eye = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      eye.setAttribute('cx', ex);
+      eye.setAttribute('cy', ey);
+      eye.setAttribute('r', eyeRadius);
+      eye.setAttribute('fill', '#ffffff');
+
+      const pupil = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+      pupil.setAttribute('cx', ex);
+      pupil.setAttribute('cy', ey);
+      pupil.setAttribute('r', pupilRadius);
+      pupil.setAttribute('fill', '#1e293b');
+
+      group.appendChild(eye);
+      group.appendChild(pupil);
+    });
+
+    // Red Forked Tongue pointing out from head
+    const tongueLen = headRadius * 1.2;
+    const tx = head.x - Math.cos(headAngle) * (headRadius * 0.8);
+    const ty = head.y - Math.sin(headAngle) * (headRadius * 0.8);
+
+    const tonguePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tonguePath.setAttribute('d', `M ${head.x} ${head.y} L ${tx} ${ty}`);
+    tonguePath.setAttribute('stroke', '#ef4444');
+    tonguePath.setAttribute('stroke-width', cellW * 0.06);
+    tonguePath.setAttribute('stroke-linecap', 'round');
+    group.appendChild(tonguePath);
+
+    svg.appendChild(group);
   }
 
-  _addCellArt(cellNum, emoji, pos) {
-    const cell = this.cells[cellNum];
-    if (!cell) return;
-    if (cell.querySelector(`.cell-art.${pos}`)) return;
-    const span = document.createElement('span');
-    span.className = `cell-art ${pos}`;
-    span.textContent = emoji;
-    cell.appendChild(span);
+  /**
+   * Helper to check if a cell has a snake head or ladder bottom.
+   */
+  checkEntity(n) {
+    const ladder = this.ladders.find(l => l.start === n);
+    if (ladder) return { type: 'ladder', target: ladder.end, color: ladder.color };
+
+    const snake = this.snakes.find(s => s.head === n);
+    if (snake) return { type: 'snake', target: snake.tail, color: snake.color };
+
+    return null;
   }
 };

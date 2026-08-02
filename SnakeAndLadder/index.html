@@ -2,142 +2,125 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>🐍 Snake & Ladder 🪜 — Kids Edition</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>🐍 Snake &amp; Ladder 🪜 — Kids Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Bungee&display=swap"
-    rel="stylesheet"
-  />
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/styles.css" />
-  <link rel="stylesheet" href="css/animations.css" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
 </head>
 <body>
-  <!-- Animated snake background -->
-  <canvas id="bg-canvas" aria-hidden="true"></canvas>
+  <!-- Confetti particle canvas for celebrations -->
+  <canvas id="confetti-canvas"></canvas>
 
-  <!-- Floating decorations -->
-  <div class="floating-deco" aria-hidden="true">
-    <span>🐍</span><span>🪜</span><span>🎲</span><span>⭐</span>
-    <span>🦋</span><span>🌈</span><span>🎈</span><span>🍭</span>
-  </div>
-
+  <!-- Top App Header -->
   <header class="app-header">
-    <h1 class="title">
-      <span class="title-emoji">🐍</span>
-      <span class="title-text">Snake &amp; Ladder</span>
-      <span class="title-emoji">🪜</span>
-    </h1>
-    <p class="subtitle">A colorful adventure for little champions!</p>
+    <div class="title-wrap">
+      <span class="title-icon">🐍</span>
+      <h1 class="app-title">Snake &amp; Ladder</h1>
+    </div>
+    <div class="header-actions">
+      <button id="mute-btn" class="icon-btn" type="button" aria-label="Toggle Sound">🔊</button>
+      <button id="reset-btn" class="icon-btn" type="button" aria-label="New Game">🔄</button>
+    </div>
   </header>
 
-  <main class="game-shell">
+  <!-- Main Game Shell -->
+  <main class="game-container">
     <!-- Board -->
-    <section class="board-wrap" aria-label="Game board">
-      <div id="board" class="board"></div>
+    <section class="board-wrap">
+      <div id="board"></div>
     </section>
 
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="card turn-card">
-        <div class="turn-label">Now Rolling</div>
-        <div id="turn-indicator" class="turn-indicator">
-          <span class="turn-dot"></span>
-          <span class="turn-name">Player 1</span>
+    <!-- Controls Panel / Sidebar -->
+    <aside class="controls-panel">
+      <!-- Active Turn Card -->
+      <div id="turn-banner" class="turn-banner" style="background-color: #ef4444">
+        <div id="turn-emoji" class="turn-avatar">🐶</div>
+        <div class="turn-info">
+          <span id="turn-name" class="turn-name">Player 1</span>
+          <span id="turn-msg" class="turn-msg">Tap dice to roll!</span>
         </div>
       </div>
 
+      <!-- Dice Roll Card -->
       <div class="card dice-card">
-        <div class="dice-label">Tap to Roll!</div>
-        <div id="dice" class="dice" role="button" tabindex="0" aria-label="Roll the dice">
-          <span class="dice-face" data-face="1">⚀</span>
+        <div class="dice-box">
+          <div id="dice" class="dice-container" role="button" tabindex="0" aria-label="Roll Dice"></div>
+          <button id="roll-btn" class="btn-roll" type="button">
+            <span>🎲</span>
+            <span>ROLL</span>
+          </button>
         </div>
-        <button id="roll-btn" class="btn btn-primary" type="button">
-          <span>🎲</span><span>Roll Dice</span>
-        </button>
       </div>
 
-      <div class="card players-card">
-        <h3 class="card-title">Players</h3>
+      <!-- Scoreboard -->
+      <div class="card card-scoreboard">
+        <h2 class="card-title">Scoreboard</h2>
         <ul id="players-list" class="players-list"></ul>
       </div>
 
-      <div class="card log-card">
-        <h3 class="card-title">Game Log</h3>
+      <!-- Game Log -->
+      <div class="card card-log">
+        <h2 class="card-title">Game Activity</h2>
         <ul id="log-list" class="log-list"></ul>
       </div>
-
-      <button id="reset-btn" class="btn btn-ghost" type="button">
-        <span>🔄</span><span>New Game</span>
-      </button>
     </aside>
   </main>
 
-  <!-- Setup modal -->
-  <div id="setup-modal" class="modal open" role="dialog" aria-modal="true" aria-hidden="false">
-    <div class="modal-card setup-card">
-      <div class="modal-emoji">🐍</div>
+  <!-- Game Setup Modal -->
+  <div id="setup-modal" class="modal-overlay open" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="modal-icon">🎲</div>
       <h2 class="modal-title">Snake &amp; Ladder</h2>
-      <p class="modal-text">Set up your game!</p>
 
-      <div class="setup-section">
-        <label class="setup-label">Number of Players</label>
-        <div class="player-count-group">
-          <button class="count-btn active" data-count="2" type="button">2</button>
-          <button class="count-btn" data-count="3" type="button">3</button>
-          <button class="count-btn" data-count="4" type="button">4</button>
-        </div>
-      </div>
-
+      <!-- Mode selection -->
       <div class="setup-section">
         <label class="setup-label">Game Mode</label>
-        <div class="mode-group">
-          <button class="mode-btn active" data-mode="local" type="button">
-            <span class="mode-icon">👥</span>
-            <span>Local</span>
-          </button>
-          <button class="mode-btn" data-mode="computer" type="button">
-            <span class="mode-icon">🤖</span>
-            <span>vs Computer</span>
-          </button>
+        <div class="btn-group">
+          <button class="opt-btn mode-btn active" data-mode="local" type="button">👥 Pass &amp; Play</button>
+          <button class="opt-btn mode-btn" data-mode="computer" type="button">🤖 vs Computer</button>
         </div>
       </div>
 
-      <div id="player-names" class="setup-section player-names-section">
-        <label class="setup-label">Player Names</label>
-        <div class="name-inputs"></div>
+      <!-- Player Count selection -->
+      <div id="player-count-section" class="setup-section">
+        <label class="setup-label">Players</label>
+        <div class="btn-group">
+          <button class="opt-btn count-btn active" data-count="2" type="button">2</button>
+          <button class="opt-btn count-btn" data-count="3" type="button">3</button>
+          <button class="opt-btn count-btn" data-count="4" type="button">4</button>
+        </div>
       </div>
 
-      <button id="start-btn" class="btn btn-primary" type="button">
-        <span>🎲</span><span>Start Game</span>
-      </button>
+      <!-- Player Names -->
+      <div class="setup-section">
+        <label class="setup-label">Player Names</label>
+        <div id="name-inputs-container"></div>
+      </div>
+
+      <button id="start-btn" class="btn-primary" type="button">🚀 START GAME</button>
     </div>
   </div>
 
-  <!-- Winner modal -->
-  <div id="modal" class="modal" role="dialog" aria-modal="true" aria-hidden="true">
+  <!-- Winner Modal -->
+  <div id="winner-modal" class="modal-overlay" role="dialog" aria-modal="true" aria-hidden="true">
     <div class="modal-card">
-      <div class="confetti" aria-hidden="true"></div>
-      <div class="modal-emoji">🏆</div>
-      <h2 id="modal-title" class="modal-title">You Win!</h2>
-      <p id="modal-text" class="modal-text">Amazing roll, champion!</p>
-      <button id="modal-close" class="btn btn-primary" type="button">
-        <span>🎉</span><span>Play Again</span>
-      </button>
+      <div class="modal-icon">🏆</div>
+      <h2 id="winner-name" class="modal-title">You Win!</h2>
+      <div id="winner-emoji" style="font-size: 3.5rem;">🎉</div>
+      <p style="color: #64748b; font-weight: 500;">Champion of the Jungle!</p>
+      <button id="play-again-btn" class="btn-primary" type="button">🎉 PLAY AGAIN</button>
     </div>
   </div>
 
-  <script src="js/BoardEntity.js"></script>
-  <script src="js/Snake.js"></script>
-  <script src="js/Ladder.js"></script>
-  <script src="js/Player.js"></script>
-  <script src="js/Dice.js"></script>
-  <script src="js/Board.js"></script>
-  <script src="js/UIManager.js"></script>
-  <script src="js/BackgroundAnimation.js"></script>
-  <script src="js/Game.js"></script>
+  <!-- Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/board.js"></script>
+  <script src="js/dice.js"></script>
+  <script src="js/game.js"></script>
+  <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
