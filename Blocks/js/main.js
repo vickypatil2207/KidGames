@@ -137,6 +137,73 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Direct Touch / Drag Gesture Controls on Board Canvas
+  const boardCanvas = document.getElementById('board-canvas');
+  if (boardCanvas) {
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStartTime = 0;
+    let accumulatedDx = 0;
+    let accumulatedDy = 0;
+
+    const getTouchPos = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+      }
+      return { x: e.clientX, y: e.clientY };
+    };
+
+    const handleTouchStart = (e) => {
+      if (e.cancelable) e.preventDefault();
+      const pos = getTouchPos(e);
+      touchStartX = pos.x;
+      touchStartY = pos.y;
+      touchStartTime = Date.now();
+      accumulatedDx = 0;
+      accumulatedDy = 0;
+    };
+
+    const handleTouchMove = (e) => {
+      if (e.cancelable) e.preventDefault();
+      const pos = getTouchPos(e);
+      const dx = pos.x - touchStartX;
+      const dy = pos.y - touchStartY;
+
+      const stepSize = (ui && ui.cellSize) ? ui.cellSize : 30;
+
+      // Horizontal movement
+      if (Math.abs(dx - accumulatedDx) >= stepSize) {
+        const steps = Math.floor(Math.abs(dx - accumulatedDx) / stepSize) * Math.sign(dx - accumulatedDx);
+        if (steps > 0) {
+          for (let i = 0; i < steps; i++) game.moveRight();
+        } else if (steps < 0) {
+          for (let i = 0; i < Math.abs(steps); i++) game.moveLeft();
+        }
+        accumulatedDx += steps * stepSize;
+      }
+
+      // Vertical soft drop movement
+      if (dy - accumulatedDy >= stepSize * 1.2) {
+        game.softDrop();
+        accumulatedDy += stepSize * 1.2;
+      }
+    };
+
+    const handleTouchEnd = (e) => {
+      if (e.cancelable) e.preventDefault();
+      const duration = Date.now() - touchStartTime;
+
+      // If quick tap with minimal movement -> Rotate block
+      if (duration < 250 && Math.abs(accumulatedDx) < 15 && Math.abs(accumulatedDy) < 15) {
+        game.rotate();
+      }
+    };
+
+    boardCanvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+    boardCanvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+    boardCanvas.addEventListener('touchend', handleTouchEnd, { passive: false });
+  }
+
   // Keyboard Controls Handler
   window.addEventListener('keydown', (e) => {
     // Prevent scrolling default for arrow keys & spacebar

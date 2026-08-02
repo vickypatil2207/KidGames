@@ -8,12 +8,19 @@
  *   4) Take any corner opposite an opponent corner.
  *   5) Take any empty corner.
  *   6) Take any empty side.
- * Hard to beat for a kids' game, but still feels playful.
+ * Incorporates 90% decision accuracy so the AI occasionally makes mistakes,
+ * keeping the game fun, playful, and beatable for kids.
  */
 
 class ComputerPlayer extends Player {
-  constructor(symbol, emoji = "🤖") {
+  /**
+   * @param {string} symbol - "X" or "O"
+   * @param {string} emoji - Display emoji
+   * @param {number} accuracy - Decision accuracy from 0 to 1 (default: 0.9 for 90%)
+   */
+  constructor(symbol, emoji = "🤖", accuracy = 0.9) {
     super("Computer", symbol, emoji);
+    this.accuracy = accuracy;
   }
 
   /**
@@ -24,6 +31,15 @@ class ComputerPlayer extends Player {
    * @returns {number} chosen cell index (0-8)
    */
   chooseMove(board, aiSymbol, opponentSymbol) {
+    const available = board.availableIndices();
+    if (available.length === 0) return -1;
+
+    // 10% chance to make a mistake (pick a random move) to provide 90% accuracy
+    if (Math.random() >= this.accuracy) {
+      const randomIndex = Math.floor(Math.random() * available.length);
+      return available[randomIndex];
+    }
+
     const WIN_PATTERNS = [
       [0, 1, 2], [3, 4, 5], [6, 7, 8],
       [0, 3, 6], [1, 4, 7], [2, 5, 8],
@@ -72,3 +88,4 @@ class ComputerPlayer extends Player {
     return sides.find((i) => board.getCell(i) === null) ?? -1;
   }
 }
+

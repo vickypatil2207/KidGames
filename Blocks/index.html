@@ -58,30 +58,38 @@
 
     <!-- Main Game Container -->
     <main class="game-main">
-      <!-- Left Panel: Mascot & Stats -->
-      <aside class="side-panel left-panel">
-        <!-- Cute Cartoon Mascot -->
-        <div class="mascot-card" id="mascot-card">
-          <div class="mascot-bubble" id="mascot-bubble">
-            <span id="mascot-text">Ready to blast blocks? Let's go! 🎉</span>
-          </div>
-          <div class="mascot-avatar" id="mascot-avatar" role="button" tabindex="0" title="Click to change character!">
-            <span class="mascot-emoji" id="mascot-emoji">🐼</span>
-          </div>
-          <p class="mascot-hint">Tap me to switch buddy! ✨</p>
+      <!-- Cute Cartoon Mascot -->
+      <div class="mascot-card" id="mascot-card">
+        <div class="mascot-bubble" id="mascot-bubble">
+          <span id="mascot-text">Ready to blast blocks? Let's go! 🎉</span>
         </div>
-
-        <!-- Hold Piece Box -->
-        <div class="preview-box">
-          <div class="preview-title">HOLD (Shift / H)</div>
-          <div id="hold-container" class="preview-canvas-container">
-            <canvas id="hold-canvas" width="100" height="100"></canvas>
-          </div>
-          <button id="swap-btn" class="btn btn-small" type="button">Swap 🔄</button>
+        <div class="mascot-avatar" id="mascot-avatar" role="button" tabindex="0" title="Click to change character!">
+          <span class="mascot-emoji" id="mascot-emoji">🐼</span>
         </div>
-      </aside>
+        <p class="mascot-hint">Tap me to switch buddy! ✨</p>
+      </div>
 
-      <!-- Center Panel: The Game Board Grid -->
+      <!-- Score Card -->
+      <div class="score-card">
+        <div class="score-item">
+          <span class="score-label">⭐ SCORE</span>
+          <span class="score-value" id="score">0</span>
+        </div>
+        <div class="score-item highlight">
+          <span class="score-label">👑 BEST</span>
+          <span class="score-value" id="best-score">0</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">🚀 LEVEL</span>
+          <span class="score-value" id="level">1</span>
+        </div>
+        <div class="score-item">
+          <span class="score-label">✨ LINES</span>
+          <span class="score-value" id="lines">0</span>
+        </div>
+      </div>
+
+      <!-- Game Board Grid -->
       <section class="board-container">
         <div class="board-wrapper">
           <div id="game-board" class="game-board" role="grid" aria-label="Falling blocks game grid">
@@ -101,70 +109,59 @@
         </div>
       </section>
 
-      <!-- Right Panel: Score & Next Piece -->
-      <aside class="side-panel right-panel">
-        <!-- Score Card -->
-        <div class="score-card">
-          <div class="score-item">
-            <span class="score-label">⭐ SCORE</span>
-            <span class="score-value" id="score">0</span>
+      <!-- Previews Container (Hold & Next Block) -->
+      <div class="previews-container">
+        <!-- Hold Piece Box -->
+        <div class="preview-box hold-box">
+          <div class="preview-title">HOLD (Shift / H)</div>
+          <div id="hold-container" class="preview-canvas-container">
+            <canvas id="hold-canvas" width="100" height="100"></canvas>
           </div>
-          <div class="score-item highlight">
-            <span class="score-label">👑 BEST</span>
-            <span class="score-value" id="best-score">0</span>
-          </div>
-          <div class="score-item">
-            <span class="score-label">🚀 LEVEL</span>
-            <span class="score-value" id="level">1</span>
-          </div>
-          <div class="score-item">
-            <span class="score-label">✨ LINES</span>
-            <span class="score-value" id="lines">0</span>
-          </div>
+          <button id="swap-btn" class="btn btn-small" type="button">Swap 🔄</button>
         </div>
 
         <!-- Next Piece Box -->
-        <div class="preview-box">
+        <div class="preview-box next-box">
           <div class="preview-title">NEXT BLOCK</div>
           <div id="next-container" class="preview-canvas-container">
             <canvas id="next-canvas" width="100" height="100"></canvas>
           </div>
         </div>
-      </aside>
+      </div>
+
+      <!-- On-screen Cartoon Controls for Touch/Mouse -->
+      <div class="touch-controls-section">
+        <div class="controls-dpad">
+          <button id="btn-left" class="ctrl-btn ctrl-left" type="button" aria-label="Move Left">
+            <span>◀</span>
+            <small>Left</small>
+          </button>
+          <button id="btn-rotate" class="ctrl-btn ctrl-rotate" type="button" aria-label="Rotate Block">
+            <span>🔄</span>
+            <small>Rotate</small>
+          </button>
+          <button id="btn-right" class="ctrl-btn ctrl-right" type="button" aria-label="Move Right">
+            <span>▶</span>
+            <small>Right</small>
+          </button>
+        </div>
+
+        <div class="controls-actions">
+          <button id="btn-down" class="ctrl-btn ctrl-down" type="button" aria-label="Soft Drop">
+            <span>▼</span>
+            <small>Soft Drop</small>
+          </button>
+          <button id="btn-drop" class="ctrl-btn ctrl-drop" type="button" aria-label="Hard Drop">
+            <span>⚡</span>
+            <small>Hard Drop</small>
+          </button>
+        </div>
+      </div>
     </main>
-
-    <!-- On-screen Cartoon Controls for Touch/Mouse -->
-    <footer class="touch-controls-section">
-      <div class="controls-dpad">
-        <button id="btn-left" class="ctrl-btn ctrl-left" type="button" aria-label="Move Left">
-          <span>◀</span>
-          <small>Left</small>
-        </button>
-        <button id="btn-rotate" class="ctrl-btn ctrl-rotate" type="button" aria-label="Rotate Block">
-          <span>🔄</span>
-          <small>Rotate</small>
-        </button>
-        <button id="btn-right" class="ctrl-btn ctrl-right" type="button" aria-label="Move Right">
-          <span>▶</span>
-          <small>Right</small>
-        </button>
-      </div>
-
-      <div class="controls-actions">
-        <button id="btn-down" class="ctrl-btn ctrl-down" type="button" aria-label="Soft Drop">
-          <span>▼</span>
-          <small>Soft Drop</small>
-        </button>
-        <button id="btn-drop" class="ctrl-btn ctrl-drop" type="button" aria-label="Hard Drop">
-          <span>⚡</span>
-          <small>Hard Drop</small>
-        </button>
-      </div>
-    </footer>
 
     <!-- Instructions Banner -->
     <div class="game-instructions">
-      <span><b>Controls:</b> ◀ / ▶ Left / Right &nbsp;•&nbsp; ▲ Rotate &nbsp;•&nbsp; ▼ Soft Drop &nbsp;•&nbsp; [Space] Hard Drop &nbsp;•&nbsp; [Shift] Hold</span>
+      <span><b>Controls:</b> Touch/Drag board or use buttons &nbsp;•&nbsp; ◀ / ▶ Left / Right &nbsp;•&nbsp; Tap/▲ Rotate &nbsp;•&nbsp; ▼ Soft Drop &nbsp;•&nbsp; ⚡ Hard Drop</span>
     </div>
   </div>
 

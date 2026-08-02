@@ -10,11 +10,12 @@ class PowerupManager {
     this.activePowerups = { wide: 0, laser: 0, sticky: 0, fireball: 0, slow: 0 };
   }
 
-  spawnPowerup(powerupsArray, x, y) {
+  spawnPowerup(powerupsArray, x, y, speed) {
     if (Math.random() < 0.28) {
       const types = ['wide', 'multiball', 'slow', 'life', 'laser', 'sticky', 'fireball'];
       const type = types[Math.floor(Math.random() * types.length)];
-      powerupsArray.push({ x: x, y: y, radius: 12, type: type, speed: 2.2 });
+      const dropSpeed = speed ? speed * 0.75 : 3.2;
+      powerupsArray.push({ x: x, y: y, radius: 12, type: type, speed: dropSpeed });
     }
   }
 

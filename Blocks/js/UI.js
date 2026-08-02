@@ -103,12 +103,15 @@ export class UI {
     const cols = this.game.gridWidth;
     const rows = this.game.gridHeight;
 
-    const maxWidth = Math.min(window.innerWidth - 60, 480);
-    const maxHeight = Math.min(window.innerHeight - 240, 600);
+    const isMobile = window.innerWidth <= 820;
+    // On mobile, reserve space for header, score card, preview boxes, controls, padding
+    const reservedHeight = isMobile ? 320 : 220;
+    const maxHeight = Math.max(160, Math.min(window.innerHeight - reservedHeight, 560));
+    const maxWidth = Math.min(window.innerWidth - 36, 480);
 
     const cellW = Math.floor(maxWidth / cols);
     const cellH = Math.floor(maxHeight / rows);
-    this.cellSize = Math.max(22, Math.min(cellW, cellH, 44));
+    this.cellSize = Math.max(18, Math.min(cellW, cellH, 44));
 
     this.boardCanvas.width = cols * this.cellSize;
     this.boardCanvas.height = rows * this.cellSize;

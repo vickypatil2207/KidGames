@@ -53,9 +53,29 @@ class BrickBreakerGame {
   }
 
   resizeCanvas() {
-    const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.style.width = rect.width + 'px';
-    this.canvas.style.height = rect.height + 'px';
+    const parent = this.canvas.parentElement;
+    if (!parent) return;
+    const rect = parent.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return;
+
+    // Virtual width fixed at 800 for consistent brick grid & paddle proportions
+    const virtualWidth = 800;
+    // Calculate dynamic virtual height matching container aspect ratio (min 600)
+    const containerAspect = rect.height / rect.width;
+    const virtualHeight = Math.max(600, Math.round(virtualWidth * containerAspect));
+
+    this.renderer.width = virtualWidth;
+    this.renderer.height = virtualHeight;
+    this.canvas.width = virtualWidth;
+    this.canvas.height = virtualHeight;
+
+    // Keep paddle anchored 50px above bottom edge of dynamic canvas
+    this.paddle.y = virtualHeight - 50;
+
+    // If ball is stuck to paddle, adjust its position accordingly
+    if (this.ballStuckToPaddle && this.balls && this.balls.length > 0) {
+      this.balls[0].y = this.paddle.y - 14;
+    }
   }
 
   selectLevel(levelNum) {
@@ -67,12 +87,22 @@ class BrickBreakerGame {
     this.startLevel(levelNum);
   }
 
+  getBallSpeed(levelNum = this.currentLevel) {
+    const baseSpeed = 5.5 + Math.floor(levelNum / 4) * 0.4;
+    const heightRatio = (this.renderer ? this.renderer.height : 600) / 600;
+    if (heightRatio > 1) {
+      return baseSpeed * (1 + (heightRatio - 1) * 0.42);
+    }
+    return baseSpeed;
+  }
+
   startLevel(levelNum) {
     this.currentLevel = levelNum;
     this.gameState = 'PLAYING';
     this.ballStuckToPaddle = true;
 
     this.paddle.width = 120;
+    this.paddle.y = this.renderer.height - 50;
     this.paddle.x = (this.renderer.width - this.paddle.width) / 2;
     this.paddle.vx = 0;
     this.targetMouseX = this.paddle.x + this.paddle.width / 2;
@@ -83,7 +113,7 @@ class BrickBreakerGame {
     this.powerups = [];
     this.lasers = [];
 
-    const ballSpeed = 5.5 + Math.floor(levelNum / 4) * 0.4;
+    const ballSpeed = this.getBallSpeed(levelNum);
     this.balls = [{
       x: this.paddle.x + this.paddle.width / 2,
       y: this.paddle.y - 14,
@@ -103,7 +133,7 @@ class BrickBreakerGame {
     if (this.ballStuckToPaddle) {
       this.ballStuckToPaddle = false;
       
-      const ballSpeed = 5.5 + Math.floor(this.currentLevel / 4) * 0.4;
+      const ballSpeed = this.getBallSpeed(this.currentLevel);
       if (this.balls.length === 0) {
         this.balls = [{
           x: this.paddle.x + this.paddle.width / 2,
@@ -201,7 +231,7 @@ class BrickBreakerGame {
             this.score += 10;
             particleEngine.spawn(l.x, l.y, '#f59e0b', 4);
             if (b.hp <= 0) {
-              powerupManager.spawnPowerup(this.powerups, b.x + b.w / 2, b.y + b.h / 2);
+              powerupManager.spawnPowerup(this.powerups, b.x + b.w / 2, b.y + b.h / 2, this.getBallSpeed());
               if (b.type === 'explosive') this.explodeBrick(b);
             }
           }
@@ -283,7 +313,7 @@ class BrickBreakerGame {
               else sound.playBrickHit();
 
               if (b.hp <= 0) {
-                powerupManager.spawnPowerup(this.powerups, b.x + b.w / 2, b.y + b.h / 2);
+                powerupManager.spawnPowerup(this.powerups, b.x + b.w / 2, b.y + b.h / 2, this.getBallSpeed());
                 if (b.type === 'explosive') this.explodeBrick(b);
               }
             } else {
@@ -321,7 +351,7 @@ class BrickBreakerGame {
         } else {
           // Prepare next ball on paddle
           this.ballStuckToPaddle = true;
-          const ballSpeed = 5.5 + Math.floor(this.currentLevel / 4) * 0.4;
+          const ballSpeed = this.getBallSpeed(this.currentLevel);
           this.balls = [{
             x: this.paddle.x + this.paddle.width / 2,
             y: this.paddle.y - 14,
@@ -393,13 +423,34 @@ class BrickBreakerGame {
   setupEventListeners() {
     sound.init();
 
-    // Mouse / Touch Move over entire window for smooth responsiveness
+    // Mouse / Pointer Move over entire window for smooth responsiveness
     window.addEventListener('pointermove', (e) => {
       const rect = this.canvas.getBoundingClientRect();
       const scaleX = this.renderer.width / rect.width;
       this.targetMouseX = (e.clientX - rect.left) * scaleX;
       this.isMouseMoving = true;
     });
+
+    // Touch controls directly on game canvas
+    const handleTouch = (e) => {
+      if (e.touches && e.touches.length > 0) {
+        const touch = e.touches[0];
+        const rect = this.canvas.getBoundingClientRect();
+        const scaleX = this.renderer.width / rect.width;
+        this.targetMouseX = (touch.clientX - rect.left) * scaleX;
+        this.isMouseMoving = true;
+      }
+    };
+
+    this.canvas.addEventListener('touchstart', (e) => {
+      if (this.gameState === 'PLAYING') e.preventDefault();
+      handleTouch(e);
+    }, { passive: false });
+
+    this.canvas.addEventListener('touchmove', (e) => {
+      if (this.gameState === 'PLAYING') e.preventDefault();
+      handleTouch(e);
+    }, { passive: false });
 
     // Global Pointerdown / Click anywhere to launch ball & fire laser (ignoring buttons)
     document.addEventListener('pointerdown', (e) => {

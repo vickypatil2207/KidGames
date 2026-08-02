@@ -342,11 +342,12 @@ body {
   60%  { opacity: 1; filter: brightness(1.1) saturate(1.1); }
   100% { opacity: 1; filter: none; }
 }
-/* Merge pulse — quick scale + brightness flash, no big ring. */
+/* Merge pulse — quick scale + brightness flash, no big ring.
+   Uses standalone scale property so positioning translate transform is preserved. */
 @keyframes merge {
-  0%   { transform: scale(1);    filter: brightness(1)    saturate(1); }
-  40%  { transform: scale(1.15); filter: brightness(1.35) saturate(1.4); }
-  100% { transform: scale(1);    filter: none; }
+  0%   { scale: 1;    filter: brightness(1)    saturate(1); }
+  40%  { scale: 1.15; filter: brightness(1.35) saturate(1.4); }
+  100% { scale: 1;    filter: none; }
 }
 /* Consumed tile — shrink + fade from its ORIGINAL grid cell.
    `forwards` keeps the final state so the element is invisible while

@@ -245,22 +245,143 @@ html, body {
 .game-main {
   display: grid;
   grid-template-columns: 220px 1fr 220px;
+  grid-template-areas:
+    "mascot board score"
+    "hold   board next"
+    ".      controls .";
   gap: 16px;
   align-items: start;
   flex: 1;
 }
 
+#mascot-card { grid-area: mascot; }
+.score-card { grid-area: score; }
+.board-container { grid-area: board; }
+.hold-box { grid-area: hold; }
+.next-box { grid-area: next; }
+.touch-controls-section { grid-area: controls; }
+
+.previews-container {
+  display: contents;
+}
+
 @media (max-width: 820px) {
-  .game-main {
-    grid-template-columns: 1fr;
-    justify-items: center;
+  .app {
+    padding: 6px 10px;
+    gap: 6px;
   }
-  .side-panel {
+
+  .game-header {
+    padding: 6px 12px;
+    gap: 6px;
+  }
+
+  .game-title {
+    font-size: 1.1rem;
+  }
+
+  .game-main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .score-card {
+    order: 1;
     width: 100%;
     max-width: 420px;
+    padding: 6px 10px;
+    gap: 6px;
+  }
+
+  .score-item {
+    padding: 4px 6px;
+  }
+
+  .score-value {
+    font-size: 1.1rem;
+  }
+
+  .board-container {
+    order: 2;
+    width: 100%;
+  }
+
+  .board-wrapper {
+    padding: 8px;
+    border-width: 3px;
+  }
+
+  .previews-container {
+    order: 3;
     display: flex;
     flex-direction: row;
-    justify-content: space-around;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .preview-box {
+    flex: 1;
+    padding: 6px 8px;
+  }
+
+  .preview-title {
+    font-size: 0.68rem;
+    margin-bottom: 4px;
+  }
+
+  #hold-canvas, #next-canvas {
+    width: 70px !important;
+    height: 70px !important;
+  }
+
+  .touch-controls-section {
+    order: 4;
+    gap: 10px;
+    margin-top: 2px;
+    width: 100%;
+  }
+
+  .ctrl-btn {
+    width: 48px;
+    height: 48px;
+  }
+  .ctrl-btn span {
+    font-size: 1.1rem;
+  }
+  .ctrl-btn small {
+    font-size: 0.55rem;
+  }
+
+  .ctrl-rotate, .ctrl-drop {
+    width: 54px;
+    height: 54px;
+  }
+
+  .mascot-card {
+    order: 5;
+    width: 100%;
+    max-width: 420px;
+    padding: 8px 12px;
+  }
+
+  .mascot-avatar {
+    font-size: 2.2rem;
+  }
+
+  .mascot-bubble {
+    font-size: 0.78rem;
+    padding: 4px 8px;
+    margin-bottom: 4px;
+  }
+
+  .game-instructions {
+    font-size: 0.75rem;
+    padding: 4px 10px;
   }
 }
 

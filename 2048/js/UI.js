@@ -132,14 +132,30 @@ export class UI {
     this._setScore(score);
     this._setBest(best);
 
-    // Remove old tile elements (we rebuild each render).
-    this.tileLayer.innerHTML = '';
-    this._tilesById.clear();
+    const currentBoardTiles = new Set(board.tiles());
 
+    // 1) Remove DOM elements for tiles no longer on the board
+    for (const [tile, el] of Array.from(this._tilesById.entries())) {
+      if (!currentBoardTiles.has(tile)) {
+        el.remove();
+        this._tilesById.delete(tile);
+      }
+    }
+
+    // 2) Update existing elements or create new ones for current tiles
     for (const tile of board.tiles()) {
-      const el = this._createTileEl(tile);
-      this.tileLayer.appendChild(el);
-      this._tilesById.set(tile, el);
+      let el = this._tilesById.get(tile);
+      if (!el) {
+        el = this._createTileEl(tile);
+        this.tileLayer.appendChild(el);
+        this._tilesById.set(tile, el);
+      } else {
+        this._positionTile(el, tile.row, tile.col);
+        el.textContent = tile.value;
+        const isMerged = el.classList.contains('tile-merged');
+        const isNew = el.classList.contains('tile-new');
+        el.className = `tile ${tile.cssClass}` + (isMerged ? ' tile-merged' : '') + (isNew ? ' tile-new' : '');
+      }
     }
   }
 
