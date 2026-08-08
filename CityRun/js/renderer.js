@@ -389,10 +389,20 @@ class GameRenderer {
         }
     }
 
-    render(playerMesh) {
-        // Camera smoothly follows player lateral X movements
+    render(playerMesh, deltaTime = 0.016, hasJetpack = false) {
+        // Camera smoothly follows player lateral X movements, and elevates only in Jetpack mode
         if (playerMesh) {
-            this.camera.position.x += (playerMesh.position.x * 0.35 - this.camera.position.x) * 0.1;
+            const jetpackY = hasJetpack ? playerMesh.position.y : 0;
+            const targetX = playerMesh.position.x * 0.35;
+            const targetY = 4.5 + jetpackY * 0.85;
+            const targetZ = 8.5 + jetpackY * 0.45;
+            const targetRotX = -0.22 - Math.min(1, jetpackY / 6.5) * 0.12;
+
+            const lerpSpeed = Math.min(1, 10 * deltaTime);
+            this.camera.position.x += (targetX - this.camera.position.x) * lerpSpeed;
+            this.camera.position.y += (targetY - this.camera.position.y) * lerpSpeed;
+            this.camera.position.z += (targetZ - this.camera.position.z) * lerpSpeed;
+            this.camera.rotation.x += (targetRotX - this.camera.rotation.x) * lerpSpeed;
         }
         this.renderer.render(this.scene, this.camera);
     }

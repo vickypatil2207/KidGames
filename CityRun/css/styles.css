@@ -159,6 +159,36 @@ html, body {
     color: #a0aec0;
 }
 
+/* Persistent Wallet Display on Main Menu */
+.menu-wallet-card {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    background: rgba(15, 23, 42, 0.7);
+    border: 1.5px solid rgba(255, 215, 0, 0.3);
+    border-radius: 16px;
+    padding: 0.6rem 1rem;
+    margin: 0.2rem 0;
+}
+
+.wallet-stat {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: #ffd700;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.sub-wallet-text {
+    font-size: 0.75rem;
+    font-weight: 600;
+    opacity: 0.85;
+    margin-top: 2px;
+}
+
+
 /* Buttons */
 .primary-btn, .secondary-btn, .danger-btn {
     width: 100%;
@@ -628,11 +658,72 @@ html, body {
     color: #cbd5e0;
 }
 
-.game-over-actions, .pause-actions {
+.game-over-actions, .pause-actions, .revive-actions {
     display: flex;
     flex-direction: column;
     gap: 0.8rem;
 }
+
+/* Revive Modal Styles */
+.revive-modal {
+    text-align: center;
+    max-width: 380px;
+    padding: 1.8rem 1.5rem;
+}
+
+.revive-header h2 {
+    font-size: 1.8rem;
+    color: #00e5ff;
+    margin-bottom: 0.3rem;
+}
+
+.revive-header p {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+    margin-bottom: 1.2rem;
+}
+
+.revive-timer-circle {
+    width: 90px;
+    height: 90px;
+    margin: 0 auto 1.2rem auto;
+    border-radius: 50%;
+    background: radial-gradient(circle, #ff0055, #990033);
+    border: 4px solid #ffd700;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 0 25px rgba(255, 0, 85, 0.6);
+    animation: pulseGlow 1s infinite alternate;
+}
+
+@keyframes pulseGlow {
+    0% { transform: scale(1); box-shadow: 0 0 15px rgba(255, 0, 85, 0.5); }
+    100% { transform: scale(1.08); box-shadow: 0 0 30px rgba(255, 215, 0, 0.8); }
+}
+
+#revive-countdown-num {
+    font-size: 3rem;
+    font-weight: 900;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+}
+
+.revive-cost-info {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #ffda79;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 0.6rem 1rem;
+    border-radius: 12px;
+    margin-bottom: 1.2rem;
+    border: 1px solid rgba(255, 218, 121, 0.3);
+}
+
+.snack-emoji {
+    font-size: 1.2rem;
+}
+
 
 /* Responsiveness */
 /* Touch controls visibility is managed via user setting (TOUCH BUTTONS: ON / OFF) */

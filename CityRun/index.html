@@ -85,6 +85,12 @@
                     </button>
                 </div>
 
+                <!-- Total Persistent Wallet Display -->
+                <div class="menu-wallet-card">
+                    <div class="wallet-stat"><i class="fa-solid fa-coins"></i> <span id="menu-total-coins">0</span> COINS</div>
+                    <div class="wallet-stat"><span class="snack-emoji">🍡</span> <span id="menu-total-snacks">0</span> SNACKS</div>
+                </div>
+
                 <div class="menu-actions">
                     <button id="start-game-btn" class="primary-btn pulse-anim">
                         <i class="fa-solid fa-play"></i> START RUNNING!
@@ -129,6 +135,32 @@
                     <button id="pause-touch-toggle-btn" class="secondary-btn"><i class="fa-solid fa-gamepad"></i> TOUCH BUTTONS: OFF</button>
                     <button id="restart-btn" class="secondary-btn"><i class="fa-solid fa-rotate-right"></i> RESTART</button>
                     <button id="quit-btn" class="danger-btn"><i class="fa-solid fa-house"></i> MAIN MENU</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revive Modal Screen -->
+        <div id="revive-screen" class="ui-screen hidden">
+            <div class="modal-content glass-panel revive-modal">
+                <div class="revive-header">
+                    <h2><i class="fa-solid fa-heart-pulse"></i> REVIVE RUNNER?</h2>
+                    <p>Continue your run across Gujarat!</p>
+                </div>
+                <div class="revive-timer-circle">
+                    <span id="revive-countdown-num">5</span>
+                </div>
+                <div class="revive-actions">
+                    <button id="revive-snack-btn" class="primary-btn pulse-anim">
+                        <div><span class="snack-emoji">🍡</span> REVIVE FOR <span id="revive-snack-cost">20</span> SNACKS (<span id="revive-snack-attempts">1/5</span>)</div>
+                        <div class="sub-wallet-text">Available: <span id="revive-snacks-avail">0</span></div>
+                    </button>
+                    <button id="revive-coin-btn" class="secondary-btn">
+                        <div><i class="fa-solid fa-coins"></i> REVIVE FOR <span id="revive-coin-cost">100</span> COINS (<span id="revive-coin-attempts">1/3</span>)</div>
+                        <div class="sub-wallet-text">Available: <span id="revive-coins-avail">0</span></div>
+                    </button>
+                    <button id="revive-cancel-btn" class="danger-btn">
+                        <i class="fa-solid fa-xmark"></i> CLOSE DIRECTLY
+                    </button>
                 </div>
             </div>
         </div>

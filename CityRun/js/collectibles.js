@@ -37,27 +37,48 @@ class CollectibleBuilder {
     static createSnack() {
         const group = new THREE.Group();
 
-        // Spiral Orange Jalebi
-        const jalebiMat = new THREE.MeshStandardMaterial({
-            color: 0xff6b00,
-            metalness: 0.3,
-            roughness: 0.3,
-            emissive: 0xff3300,
-            emissiveIntensity: 0.2
-        });
+        if (Math.random() < 0.5) {
+            // Spiral Orange Jalebi
+            const jalebiMat = new THREE.MeshStandardMaterial({
+                color: 0xff6b00,
+                metalness: 0.3,
+                roughness: 0.3,
+                emissive: 0xff3300,
+                emissiveIntensity: 0.2
+            });
 
-        const jalebiRing1 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 16), jalebiMat);
-        const jalebiRing2 = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.1, 8, 16), jalebiMat);
-        group.add(jalebiRing1, jalebiRing2);
+            const jalebiRing1 = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.12, 8, 16), jalebiMat);
+            const jalebiRing2 = new THREE.Mesh(new THREE.TorusGeometry(0.28, 0.1, 8, 16), jalebiMat);
+            group.add(jalebiRing1, jalebiRing2);
+            group.userData = { type: 'collectible', subtype: 'snack', snackType: 'jalebi', value: 5, radius: 1.0 };
+        } else {
+            // Golden Crispy Fafda Strips with Green Chili
+            const fafdaMat = new THREE.MeshStandardMaterial({
+                color: 0xfacc15, // Golden yellow
+                roughness: 0.5,
+                metalness: 0.1
+            });
+            const chiliMat = new THREE.MeshStandardMaterial({ color: 0x16a34a, roughness: 0.3 });
+
+            // 2 Flat Rectangular Fafda Strips
+            const strip1 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, 1.2), fafdaMat);
+            strip1.position.set(-0.2, 0, 0);
+            strip1.rotation.y = 0.2;
+
+            const strip2 = new THREE.Mesh(new THREE.BoxGeometry(0.35, 0.05, 1.2), fafdaMat);
+            strip2.position.set(0.2, 0.06, 0);
+            strip2.rotation.y = -0.2;
+
+            // Green Fried Chili on top
+            const chili = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.07, 0.6, 8), chiliMat);
+            chili.rotation.z = Math.PI / 2;
+            chili.position.set(0, 0.12, 0);
+
+            group.add(strip1, strip2, chili);
+            group.userData = { type: 'collectible', subtype: 'snack', snackType: 'fafda', value: 5, radius: 1.0 };
+        }
+
         group.position.y = 1.4;
-
-        group.userData = {
-            type: 'collectible',
-            subtype: 'snack',
-            value: 5,
-            radius: 1.0
-        };
-
         return group;
     }
 

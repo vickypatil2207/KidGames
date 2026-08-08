@@ -30,14 +30,25 @@ class CityRunGame {
 
         // Monument Milestones List
         this.monumentMilestones = [
-            { distance: 120, type: 'atal', triggered: false },
-            { distance: 350, type: 'sidi', triggered: false },
-            { distance: 650, type: 'jhalta', triggered: false },
-            { distance: 950, type: 'kankaria', triggered: false },
-            { distance: 1300, type: 'akshardham', triggered: false },
-            { distance: 1700, type: 'mahatma', triggered: false },
-            { distance: 2100, type: 'giftcity', triggered: false }
+            { distance: 2000, type: 'atal', triggered: false },
+            { distance: 4000, type: 'sidi', triggered: false },
+            { distance: 6000, type: 'jhalta', triggered: false },
+            { distance: 8000, type: 'kankaria', triggered: false },
+            { distance: 10000, type: 'laldarwaja', triggered: false },
+            { distance: 12000, type: 'lawgarden', triggered: false },
+            { distance: 14000, type: 'iscon', triggered: false },
+            { distance: 16000, type: 'vaishnodevi', triggered: false },
+            { distance: 18000, type: 'motera', triggered: false },
+            { distance: 23000, type: 'akshardham', triggered: false }, // 5,000m gap after last Ahmedabad place
+            { distance: 26000, type: 'mahatma', triggered: false },
+            { distance: 29000, type: 'giftcity', triggered: false },
+            { distance: 32000, type: 'indroda', triggered: false },
+            { distance: 35000, type: 'pathik', triggered: false }
         ];
+
+        this.hasRevived = false;
+        this.snackReviveAttempts = 0;
+        this.coinReviveAttempts = 0;
 
         // Power-Up Durations Tracker
         this.powerupTimers = {
@@ -93,6 +104,9 @@ class CityRunGame {
         this.coinsCollected = 0;
         this.snacksCollected = 0;
         this.spawnDistanceCounter = 0;
+        this.hasRevived = false;
+        this.snackReviveAttempts = 0;
+        this.coinReviveAttempts = 0;
 
         // Reset Player Position & Powers
         this.player.mesh.position.set(0, 0, 0);
@@ -127,7 +141,7 @@ class CityRunGame {
             this.update(deltaTime);
         }
 
-        this.renderer.render(this.player.mesh);
+        this.renderer.render(this.player.mesh, deltaTime, this.player.hasJetpack);
         requestAnimationFrame((t) => this.loop(t));
     }
 
@@ -144,7 +158,7 @@ class CityRunGame {
         this.ui.updateHUD(this.score, this.distance, this.coinsCollected);
 
         // 2. Update Player & Road Tiling
-        this.player.update(deltaTime);
+        this.player.update(deltaTime, this.powerupTimers);
         this.renderer.updateRoad(this.speed, deltaTime);
 
         // 3. Update Power-Up Active Timers
@@ -178,6 +192,11 @@ class CityRunGame {
             this.powerupTimers.jetpack -= deltaTime * 1000;
             if (this.powerupTimers.jetpack <= 0) this.player.hasJetpack = false;
         }
+        // Shield
+        if (this.powerupTimers.shield > 0) {
+            this.powerupTimers.shield -= deltaTime * 1000;
+            if (this.powerupTimers.shield <= 0) this.player.hasShield = false;
+        }
         // Multiplier
         if (this.powerupTimers.multiplier > 0) {
             this.powerupTimers.multiplier -= deltaTime * 1000;
@@ -196,9 +215,16 @@ class CityRunGame {
                     case 'sidi': monumentMesh = MonumentBuilder.createSidiSaiyyedArch(); break;
                     case 'jhalta': monumentMesh = MonumentBuilder.createJhaltaMinara(); break;
                     case 'kankaria': monumentMesh = MonumentBuilder.createKankariaBalloon(); break;
+                    case 'laldarwaja': monumentMesh = MonumentBuilder.createLalDarwaja(); break;
+                    case 'lawgarden': monumentMesh = MonumentBuilder.createLawGarden(); break;
+                    case 'iscon': monumentMesh = MonumentBuilder.createIsconTemple(); break;
+                    case 'vaishnodevi': monumentMesh = MonumentBuilder.createVaishnodeviMandir(); break;
+                    case 'motera': monumentMesh = MonumentBuilder.createMoteraStadium(); break;
                     case 'akshardham': monumentMesh = MonumentBuilder.createAkshardhamTemple(); break;
                     case 'mahatma': monumentMesh = MonumentBuilder.createMahatmaMandir(); break;
                     case 'giftcity': monumentMesh = MonumentBuilder.createGiftCityTowers(); break;
+                    case 'indroda': monumentMesh = MonumentBuilder.createIndrodaPark(); break;
+                    case 'pathik': monumentMesh = MonumentBuilder.createPathikAshram(); break;
                 }
 
                 if (monumentMesh) {
@@ -219,7 +245,12 @@ class CityRunGame {
         // Choose what to spawn (Obstacle vs Collectible vs Power-up)
         const rand = Math.random();
 
-        if (rand < 0.55 && !this.player.hasJetpack) {
+        // Predict if player will be in jetpack flight when these items reach player at z = 0
+        const travelTimeSec = 110 / this.speed;
+        const remainingJetpackSec = (this.powerupTimers.jetpack || 0) / 1000;
+        const willBeFlying = remainingJetpackSec > (travelTimeSec * 0.35);
+
+        if (rand < 0.55 && !this.player.hasJetpack && !willBeFlying) {
             // Spawn Obstacle
             const obstacleTypes = ['auto', 'bus', 'barricade', 'overhead', 'cart'];
             const chosenType = obstacleTypes[Math.floor(Math.random() * obstacleTypes.length)];
@@ -242,11 +273,11 @@ class CityRunGame {
             this.renderer.scene.add(obstacle);
             this.obstacles.push(obstacle);
         } else if (rand < 0.88) {
-            // Spawn Coin Row / Snack
-            const spawnSnack = Math.random() < 0.25;
+            // Spawn Coin Row / Snack with exact 10:1 Coins to Snack Ratio
+            const spawnSnack = Math.random() < (1 / 11);
             for (let i = 0; i < 4; i++) {
                 const item = spawnSnack ? CollectibleBuilder.createSnack() : CollectibleBuilder.createCoin();
-                const spawnY = this.player.hasJetpack ? 6.5 : 1.2;
+                const spawnY = (willBeFlying || (this.player.hasJetpack && remainingJetpackSec > 1.5)) ? 6.5 : 1.2;
                 item.position.set(randomLane, spawnY, -110 - (i * 3.5));
                 this.renderer.scene.add(item);
                 this.collectibles.push(item);
@@ -278,8 +309,8 @@ class CityRunGame {
             item.position.z += moveDist;
             item.rotation.y += deltaTime * 3;
 
-            // Magnet Attraction Effect
-            if (this.player.hasMagnet && item.userData.type === 'collectible') {
+            // Magnet Attraction Effect (Metal coins only, non-metallic Jalebi & Fafda are ignored!)
+            if (this.player.hasMagnet && item.userData.type === 'collectible' && item.userData.subtype === 'coin') {
                 const dx = this.player.mesh.position.x - item.position.x;
                 const dy = this.player.mesh.position.y - item.position.y;
                 const dz = this.player.mesh.position.z - item.position.z;
@@ -336,10 +367,12 @@ class CityRunGame {
                 if (item.userData.type === 'collectible') {
                     if (item.userData.subtype === 'coin') {
                         this.coinsCollected++;
+                        this.ui.addCoins(1);
                         this.score += 10;
                         window.audioManager.playCoin();
                     } else if (item.userData.subtype === 'snack') {
                         this.snacksCollected++;
+                        this.ui.addSnacks(1);
                         this.score += 50;
                         window.audioManager.playSnack();
                     }
@@ -348,7 +381,16 @@ class CityRunGame {
                     const st = item.userData.subtype;
 
                     if (st === 'magnet') { this.player.hasMagnet = true; this.powerupTimers.magnet = item.userData.duration; }
-                    if (st === 'jetpack') { this.player.hasJetpack = true; this.powerupTimers.jetpack = item.userData.duration; }
+                    if (st === 'jetpack') {
+                        this.player.hasJetpack = true;
+                        this.powerupTimers.jetpack = item.userData.duration;
+                        // Instantly elevate existing on-screen collectibles ahead into the air lane
+                        this.collectibles.forEach(c => {
+                            if (c.position.z < 0 && c.userData.type === 'collectible') {
+                                c.position.y = 6.5;
+                            }
+                        });
+                    }
                     if (st === 'shield') { this.player.hasShield = true; this.powerupTimers.shield = item.userData.duration; }
                     if (st === 'multiplier') { this.player.hasMultiplier = true; this.powerupTimers.multiplier = item.userData.duration; }
                 }
@@ -390,12 +432,70 @@ class CityRunGame {
                     this.powerupTimers.shield = 0;
                     window.audioManager.playCrash();
                     obs.position.z = 20; // Push obstacle past
+                } else if (this.snackReviveAttempts < 5 || this.coinReviveAttempts < 3) {
+                    this.handleHitRevive();
                 } else {
                     // Game Over Crash!
                     this.gameOver();
                 }
             }
         });
+    }
+
+    handleHitRevive() {
+        this.state = 'REVIVE';
+        window.audioManager.playCrash();
+        window.audioManager.stopBgMusic();
+        this.ui.startReviveCountdown(this.snackReviveAttempts, this.coinReviveAttempts, () => this.gameOver());
+    }
+
+    confirmReviveSnacks() {
+        const snackCosts = [20, 50, 100, 200, 500];
+        const cost = snackCosts[this.snackReviveAttempts] || 500;
+
+        if (this.snackReviveAttempts < 5 && this.ui.totalSnacks >= cost) {
+            this.ui.deductSnacks(cost);
+            this.snackReviveAttempts++;
+            this.executeRevive();
+        } else {
+            this.gameOver();
+        }
+    }
+
+    confirmReviveCoins() {
+        const coinCosts = [100, 200, 500];
+        const cost = coinCosts[this.coinReviveAttempts] || 500;
+
+        if (this.coinReviveAttempts < 3 && this.ui.totalCoins >= cost) {
+            this.ui.deductCoins(cost);
+            this.coinReviveAttempts++;
+            this.executeRevive();
+        } else {
+            this.gameOver();
+        }
+    }
+
+    executeRevive() {
+        // Clear obstacles in front of player
+        this.obstacles.forEach(o => {
+            if (o.position.z > -35 && o.position.z < 20) {
+                this.renderer.scene.remove(o);
+            }
+        });
+        this.obstacles = this.obstacles.filter(o => o.position.z <= -35 || o.position.z >= 20);
+
+        // Grant 3 seconds temporary shield invincibility
+        this.player.hasShield = true;
+        this.powerupTimers.shield = 3000;
+
+        this.state = 'PLAYING';
+        this.ui.showScreen('HUD');
+        window.audioManager.startBgMusic();
+        this.lastTime = performance.now();
+    }
+
+    cancelRevive() {
+        this.gameOver();
     }
 
     gameOver() {

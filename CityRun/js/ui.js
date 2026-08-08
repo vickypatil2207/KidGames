@@ -4,6 +4,10 @@ class UIManager {
         this.game = gameInstance;
         this.highScore = parseInt(localStorage.getItem('cityrun_highscore') || '0', 10);
 
+        // Persistent Wallet Storage
+        this.totalCoins = parseInt(localStorage.getItem('cityrun_total_coins') || '0', 10);
+        this.totalSnacks = parseInt(localStorage.getItem('cityrun_total_snacks') || '0', 10);
+
         this.characters = [
             { id: 'mickey', name: 'Mickey Mouse', emoji: '🐭', desc: 'Fast & Nimble! Magnet Bonus Ability.', ability: 'Coin Magnet' },
             { id: 'panda', name: 'Cute Panda', emoji: '🐼', desc: 'Chubby Power! Extra Shield Protection.', ability: 'Extra Shield' },
@@ -22,6 +26,7 @@ class UIManager {
         this.populateCharacterGrid();
         this.updateHighScoreDisplay();
         this.updateTouchControlsDisplay();
+        this.updateWalletDisplay();
     }
 
     initDOM() {
@@ -29,6 +34,7 @@ class UIManager {
         this.charSelectScreen = document.getElementById('char-select-screen');
         this.hud = document.getElementById('hud');
         this.pauseScreen = document.getElementById('pause-screen');
+        this.reviveScreen = document.getElementById('revive-screen');
         this.gameOverScreen = document.getElementById('game-over-screen');
         this.monumentBanner = document.getElementById('monument-banner');
         this.monumentText = document.getElementById('monument-text');
@@ -38,10 +44,26 @@ class UIManager {
         this.hudCoins = document.getElementById('hud-coins');
         this.powerupBar = document.getElementById('powerup-bar');
         this.menuHighScore = document.getElementById('menu-high-score');
+        this.menuTotalCoins = document.getElementById('menu-total-coins');
+        this.menuTotalSnacks = document.getElementById('menu-total-snacks');
+
+        this.reviveCountdownNum = document.getElementById('revive-countdown-num');
+        this.reviveSnackBtn = document.getElementById('revive-snack-btn');
+        this.reviveCoinBtn = document.getElementById('revive-coin-btn');
+        this.reviveCancelBtn = document.getElementById('revive-cancel-btn');
+
+        this.reviveSnackCost = document.getElementById('revive-snack-cost');
+        this.reviveSnackAttempts = document.getElementById('revive-snack-attempts');
+        this.reviveSnacksAvail = document.getElementById('revive-snacks-avail');
+        this.reviveCoinCost = document.getElementById('revive-coin-cost');
+        this.reviveCoinAttempts = document.getElementById('revive-coin-attempts');
+        this.reviveCoinsAvail = document.getElementById('revive-coins-avail');
 
         this.touchControls = document.getElementById('touch-controls');
         this.menuTouchBtn = document.getElementById('menu-touch-toggle-btn');
         this.pauseTouchBtn = document.getElementById('pause-touch-toggle-btn');
+
+        this.reviveTimer = null;
     }
 
     initEventListeners() {
@@ -65,6 +87,26 @@ class UIManager {
             const isMuted = window.audioManager.toggleMute();
             e.currentTarget.innerHTML = isMuted ? '<i class="fa-solid fa-volume-xmark"></i> SOUND: OFF' : '<i class="fa-solid fa-volume-high"></i> SOUND: ON';
         });
+
+        // Revive Action Buttons
+        if (this.reviveSnackBtn) {
+            this.reviveSnackBtn.addEventListener('click', () => {
+                this.stopReviveCountdown();
+                this.game.confirmReviveSnacks();
+            });
+        }
+        if (this.reviveCoinBtn) {
+            this.reviveCoinBtn.addEventListener('click', () => {
+                this.stopReviveCountdown();
+                this.game.confirmReviveCoins();
+            });
+        }
+        if (this.reviveCancelBtn) {
+            this.reviveCancelBtn.addEventListener('click', () => {
+                this.stopReviveCountdown();
+                this.game.cancelRevive();
+            });
+        }
 
         // Game Over Buttons
         document.getElementById('play-again-btn').addEventListener('click', () => this.game.restartGame());
@@ -135,6 +177,35 @@ class UIManager {
         }, { passive: true });
     }
 
+    addCoins(amount = 1) {
+        this.totalCoins += amount;
+        localStorage.setItem('cityrun_total_coins', this.totalCoins);
+        this.updateWalletDisplay();
+    }
+
+    addSnacks(amount = 1) {
+        this.totalSnacks += amount;
+        localStorage.setItem('cityrun_total_snacks', this.totalSnacks);
+        this.updateWalletDisplay();
+    }
+
+    deductCoins(amount) {
+        this.totalCoins = Math.max(0, this.totalCoins - amount);
+        localStorage.setItem('cityrun_total_coins', this.totalCoins);
+        this.updateWalletDisplay();
+    }
+
+    deductSnacks(amount) {
+        this.totalSnacks = Math.max(0, this.totalSnacks - amount);
+        localStorage.setItem('cityrun_total_snacks', this.totalSnacks);
+        this.updateWalletDisplay();
+    }
+
+    updateWalletDisplay() {
+        if (this.menuTotalCoins) this.menuTotalCoins.innerText = this.totalCoins;
+        if (this.menuTotalSnacks) this.menuTotalSnacks.innerText = this.totalSnacks;
+    }
+
     populateCharacterGrid() {
         const grid = document.getElementById('character-grid');
         grid.innerHTML = '';
@@ -178,12 +249,83 @@ class UIManager {
         this.mainMenu.classList.add('hidden');
         this.hud.classList.add('hidden');
         this.pauseScreen.classList.add('hidden');
+        if (this.reviveScreen) this.reviveScreen.classList.add('hidden');
         this.gameOverScreen.classList.add('hidden');
 
-        if (screenName === 'MENU') this.mainMenu.classList.remove('hidden');
+        if (screenName === 'MENU') {
+            this.mainMenu.classList.remove('hidden');
+            this.updateWalletDisplay();
+        }
         if (screenName === 'HUD') this.hud.classList.remove('hidden');
         if (screenName === 'PAUSE') { this.hud.classList.remove('hidden'); this.pauseScreen.classList.remove('hidden'); }
+        if (screenName === 'REVIVE') { if (this.reviveScreen) this.reviveScreen.classList.remove('hidden'); }
         if (screenName === 'GAME_OVER') this.gameOverScreen.classList.remove('hidden');
+    }
+
+    startReviveCountdown(snackAttemptIdx, coinAttemptIdx, onTimeout) {
+        this.stopReviveCountdown();
+        let remaining = 5;
+
+        const snackCosts = [20, 50, 100, 200, 500];
+        const coinCosts = [100, 200, 500];
+
+        const snackCost = snackAttemptIdx < 5 ? snackCosts[snackAttemptIdx] : 500;
+        const coinCost = coinAttemptIdx < 3 ? coinCosts[coinAttemptIdx] : 500;
+
+        if (this.reviveSnackCost) this.reviveSnackCost.innerText = snackCost;
+        if (this.reviveSnackAttempts) this.reviveSnackAttempts.innerText = `${snackAttemptIdx + 1}/5`;
+        if (this.reviveSnacksAvail) this.reviveSnacksAvail.innerText = this.totalSnacks;
+
+        if (this.reviveCoinCost) this.reviveCoinCost.innerText = coinCost;
+        if (this.reviveCoinAttempts) this.reviveCoinAttempts.innerText = `${coinAttemptIdx + 1}/3`;
+        if (this.reviveCoinsAvail) this.reviveCoinsAvail.innerText = this.totalCoins;
+
+        if (this.reviveCountdownNum) this.reviveCountdownNum.innerText = remaining;
+
+        // Configure Snack Revive Button
+        if (this.reviveSnackBtn) {
+            if (snackAttemptIdx < 5 && this.totalSnacks >= snackCost) {
+                this.reviveSnackBtn.disabled = false;
+                this.reviveSnackBtn.style.opacity = '1';
+                this.reviveSnackBtn.style.pointerEvents = 'auto';
+            } else {
+                this.reviveSnackBtn.disabled = true;
+                this.reviveSnackBtn.style.opacity = '0.4';
+                this.reviveSnackBtn.style.pointerEvents = 'none';
+            }
+        }
+
+        // Configure Coin Revive Button
+        if (this.reviveCoinBtn) {
+            if (coinAttemptIdx < 3 && this.totalCoins >= coinCost) {
+                this.reviveCoinBtn.disabled = false;
+                this.reviveCoinBtn.style.opacity = '1';
+                this.reviveCoinBtn.style.pointerEvents = 'auto';
+            } else {
+                this.reviveCoinBtn.disabled = true;
+                this.reviveCoinBtn.style.opacity = '0.4';
+                this.reviveCoinBtn.style.pointerEvents = 'none';
+            }
+        }
+
+        this.showScreen('REVIVE');
+
+        this.reviveTimer = setInterval(() => {
+            remaining--;
+            if (this.reviveCountdownNum) this.reviveCountdownNum.innerText = remaining;
+
+            if (remaining <= 0) {
+                this.stopReviveCountdown();
+                if (typeof onTimeout === 'function') onTimeout();
+            }
+        }, 1000);
+    }
+
+    stopReviveCountdown() {
+        if (this.reviveTimer) {
+            clearInterval(this.reviveTimer);
+            this.reviveTimer = null;
+        }
     }
 
     updateHUD(score, distance, coins) {
