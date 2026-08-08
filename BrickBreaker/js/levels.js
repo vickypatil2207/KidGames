@@ -73,13 +73,15 @@ class LevelManager {
     }
   }
 
-  buildBricksForLevel(levelNum, canvasWidth) {
+  buildBricksForLevel(levelNum, canvasWidth, canvasHeight = 600) {
     const layout = this.levelDefs[levelNum - 1] || this.levelDefs[0];
+    const scaleY = Math.max(1.0, canvasHeight / 600);
     const padding = 8;
-    const offsetTop = 70;
+    const paddingY = Math.round(8 * Math.min(1.4, scaleY));
+    const offsetTop = Math.round(60 * scaleY);
     const offsetLeft = 45;
     const brickW = (canvasWidth - (offsetLeft * 2) - (padding * 9)) / 10;
-    const brickH = 22;
+    const brickH = Math.round(22 * Math.min(1.4, scaleY));
     const bricks = [];
 
     for (let r = 0; r < layout.length; r++) {
@@ -99,9 +101,12 @@ class LevelManager {
         else if (val === 'S') { hp = 999; type = 'stone'; color = '#64748b'; }
         else if (val === 'R') { hp = 1; type = 'rainbow'; color = '#c084fc'; }
 
+        const xPos = offsetLeft + c * (brickW + padding);
+        const yPos = offsetTop + r * (brickH + paddingY);
+
         bricks.push({
-          x: offsetLeft + c * (brickW + padding),
-          y: offsetTop + r * (brickH + padding),
+          x: xPos,
+          y: yPos,
           w: brickW,
           h: brickH,
           hp: hp,
@@ -110,7 +115,7 @@ class LevelManager {
           color: color,
           isMoving: isMoving,
           moveDx: isMoving ? (r % 2 === 0 ? 1.5 : -1.5) : 0,
-          initialX: offsetLeft + c * (brickW + padding)
+          initialX: xPos
         });
       }
     }

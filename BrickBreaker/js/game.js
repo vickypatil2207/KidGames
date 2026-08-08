@@ -55,25 +55,50 @@ class BrickBreakerGame {
   resizeCanvas() {
     const parent = this.canvas.parentElement;
     if (!parent) return;
-    const rect = parent.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return;
+    const parentWidth = parent.clientWidth;
+    const parentHeight = parent.clientHeight;
+    if (parentWidth <= 0 || parentHeight <= 0) return;
 
-    // Virtual width fixed at 800 for consistent brick grid & paddle proportions
+    // Fixed virtual width 800, dynamic height matching full container aspect ratio
     const virtualWidth = 800;
-    // Calculate dynamic virtual height matching exact container aspect ratio
-    const virtualHeight = Math.max(600, Math.round(virtualWidth * (rect.height / rect.width)));
+    const virtualHeight = Math.max(600, Math.round(virtualWidth * (parentHeight / parentWidth)));
 
     this.renderer.width = virtualWidth;
     this.renderer.height = virtualHeight;
     this.canvas.width = virtualWidth;
     this.canvas.height = virtualHeight;
 
-    // Keep paddle anchored 50px above bottom edge of dynamic canvas
+    this.canvas.style.width = '100%';
+    this.canvas.style.height = '100%';
+
+    // Keep paddle anchored 50px above bottom edge
     this.paddle.y = virtualHeight - 50;
 
     // If ball is stuck to paddle, adjust its position accordingly
     if (this.ballStuckToPaddle && this.balls && this.balls.length > 0) {
       this.balls[0].y = this.paddle.y - 14;
+    }
+
+    // Rebuild bricks layout for active game so brick grid scales with canvas height
+    if (this.gameState === 'PLAYING' && this.bricks && this.currentLevel) {
+      this.bricks = levelManager.buildBricksForLevel(this.currentLevel, virtualWidth, virtualHeight);
+    }
+  }
+
+  toggleFullscreen() {
+    const wrapper = document.getElementById('game-wrapper');
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (wrapper.requestFullscreen) {
+        wrapper.requestFullscreen().catch(() => {});
+      } else if (wrapper.webkitRequestFullscreen) {
+        wrapper.webkitRequestFullscreen();
+      }
+    } else {
+      if (document.exitFullscreen) {
+        document.exitFullscreen().catch(() => {});
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
     }
   }
 
@@ -87,12 +112,9 @@ class BrickBreakerGame {
   }
 
   getBallSpeed(levelNum = this.currentLevel) {
-    const baseSpeed = 5.5 + Math.floor(levelNum / 4) * 0.4;
+    const baseSpeed = 5.8 + Math.floor(levelNum / 4) * 0.4;
     const heightRatio = (this.renderer ? this.renderer.height : 600) / 600;
-    if (heightRatio > 1) {
-      return baseSpeed * (1 + (heightRatio - 1) * 0.42);
-    }
-    return baseSpeed;
+    return baseSpeed * Math.pow(heightRatio, 0.65);
   }
 
   startLevel(levelNum) {
@@ -122,7 +144,7 @@ class BrickBreakerGame {
       dy: -ballSpeed
     }];
 
-    this.bricks = levelManager.buildBricksForLevel(levelNum, this.renderer.width);
+    this.bricks = levelManager.buildBricksForLevel(levelNum, this.renderer.width, this.renderer.height);
     uiManager.updateHUD(this.currentLevel, this.score, this.lives);
   }
 
@@ -490,15 +512,46 @@ class BrickBreakerGame {
     const btnRight = document.getElementById('btn-right');
     const btnAction = document.getElementById('btn-action');
 
-    btnLeft.addEventListener('touchstart', (e) => { e.preventDefault(); this.keys.left = true; });
-    btnLeft.addEventListener('touchend', (e) => { e.preventDefault(); this.keys.left = false; });
-    btnRight.addEventListener('touchstart', (e) => { e.preventDefault(); this.keys.right = true; });
-    btnRight.addEventListener('touchend', (e) => { e.preventDefault(); this.keys.right = false; });
-    btnAction.addEventListener('click', (e) => {
-      if (e.target) e.target.blur();
-      this.launchBall();
-      this.fireLaser();
-    });
+    const addHoldListeners = (btn, onStart, onEnd) => {
+      btn.addEventListener('touchstart', (e) => { e.preventDefault(); onStart(); }, { passive: false });
+      btn.addEventListener('touchend', (e) => { e.preventDefault(); onEnd(); }, { passive: false });
+      btn.addEventListener('mousedown', (e) => { e.preventDefault(); onStart(); });
+      btn.addEventListener('mouseup', (e) => { e.preventDefault(); onEnd(); });
+      btn.addEventListener('mouseleave', (e) => { e.preventDefault(); onEnd(); });
+    };
+
+    if (btnLeft) addHoldListeners(btnLeft, () => { this.keys.left = true; }, () => { this.keys.left = false; });
+    if (btnRight) addHoldListeners(btnRight, () => { this.keys.right = true; }, () => { this.keys.right = false; });
+    
+    if (btnAction) {
+      const handleAction = (e) => {
+        if (e.cancelable) e.preventDefault();
+        if (e.target) e.target.blur();
+        sound.init();
+        this.launchBall();
+        this.fireLaser();
+      };
+      btnAction.addEventListener('touchstart', handleAction, { passive: false });
+      btnAction.addEventListener('click', handleAction);
+    }
+
+    // Fullscreen Toggle
+    const fsBtn = document.getElementById('fullscreen-btn');
+    if (fsBtn) {
+      fsBtn.onclick = (e) => {
+        if (e.target) e.target.blur();
+        this.toggleFullscreen();
+      };
+    }
+
+    const onFullscreenChange = () => {
+      const isFull = !!(document.fullscreenElement || document.webkitFullscreenElement);
+      if (fsBtn) fsBtn.textContent = isFull ? '🗗' : '⛶';
+      this.resizeCanvas();
+    };
+
+    document.addEventListener('fullscreenchange', onFullscreenChange);
+    document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 
     // Hero Selection Cards
     document.querySelectorAll('.hero-card').forEach(card => {
@@ -568,6 +621,7 @@ class BrickBreakerGame {
     };
 
     window.addEventListener('resize', () => this.resizeCanvas());
+    window.addEventListener('orientationchange', () => setTimeout(() => this.resizeCanvas(), 150));
   }
 }
 
