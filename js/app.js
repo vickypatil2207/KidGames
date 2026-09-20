@@ -206,6 +206,42 @@ const GAMES_REGISTRY = [
       <rect x="55" y="70" width="40" height="40" rx="8" fill="#8AC926"/>
       <rect x="105" y="70" width="40" height="40" rx="8" fill="#1982C4"/>
     </svg>`
+  },
+  {
+    id: 'study-with-fun',
+    title: 'Study With Fun',
+    category: 'learning',
+    categoryName: 'Pre-Primary Learning',
+    emoji: '🎓',
+    folder: 'StudyWithFun',
+    path: 'StudyWithFun/index.html',
+    description: 'Vibrant preschool learning adventure! Master Alphabets, Numbers, Counting, and Capital & Small letter matching with stars & catchy music!',
+    features: ['10 Levels & Stars', 'Letter Matching', 'Voice & Audio FX', 'Object Counting'],
+    gradient: 'linear-gradient(135deg, #FF6B6B 0%, #4ECDC4 100%)',
+    artSvg: `<svg viewBox="0 0 200 120" width="100%" height="100%">
+      <defs>
+        <linearGradient id="studyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#E0F2FE"/>
+          <stop offset="100%" stop-color="#BAE6FD"/>
+        </linearGradient>
+      </defs>
+      <rect width="200" height="120" fill="url(#studyGrad)"/>
+      <!-- Rainbow arc -->
+      <path d="M 20 110 A 80 80 0 0 1 180 110" stroke="#FF4D6D" stroke-width="6" fill="none" opacity="0.6"/>
+      <path d="M 30 110 A 70 70 0 0 1 170 110" stroke="#FFB703" stroke-width="6" fill="none" opacity="0.6"/>
+      <path d="M 40 110 A 60 60 0 0 1 160 110" stroke="#06D6A0" stroke-width="6" fill="none" opacity="0.6"/>
+      <!-- Block A -->
+      <rect x="35" y="35" width="42" height="42" rx="10" fill="#FF595E" stroke="#FFF" stroke-width="3"/>
+      <text x="56" y="66" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="28" fill="#FFF" text-anchor="middle">A</text>
+      <!-- Block 1 -->
+      <rect x="85" y="25" width="42" height="42" rx="10" fill="#3A86FF" stroke="#FFF" stroke-width="3"/>
+      <text x="106" y="56" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="28" fill="#FFF" text-anchor="middle">1</text>
+      <!-- Block a (matching) -->
+      <rect x="130" y="45" width="38" height="38" rx="10" fill="#06D6A0" stroke="#FFF" stroke-width="3"/>
+      <text x="149" y="73" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="24" fill="#FFF" text-anchor="middle">a</text>
+      <!-- Little Golden Star -->
+      <polygon points="106,85 110,95 120,95 112,102 115,112 106,106 97,112 100,102 92,95 102,95" fill="#FFBE0B"/>
+    </svg>`
   }
 ];
 

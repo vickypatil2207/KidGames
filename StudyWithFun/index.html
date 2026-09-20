@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Study With Fun — Kids Learning Adventure! 🎓🎈</title>
+  <meta name="description" content="Fun and colorful educational game for pre-primary kids. Learn Alphabets, Numbers, Counting, Next Sequences, and Capital & Small letter matching with stars and catchy music!" />
+  <meta name="keywords" content="kids learning, pre primary learning, alphabet game, counting numbers, matching letters, educational games, fun learning" />
+  <meta name="theme-color" content="#BAE6FD" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Bubblegum+Sans&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Floating Background Decorative Elements -->
+  <div class="bg-decor" aria-hidden="true">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Main Application Wrapper -->
+  <div class="study-app">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+      <div class="nav-left">
+        <a href="../index.html" class="btn-nav btn-home" title="Back to KidGames Arcade">
+          <i class="fa-solid fa-arrow-left"></i> <span>Arcade Hub</span>
+        </a>
+      </div>
+
+      <div class="nav-right">
+        <!-- Audio Controls -->
+        <button id="btn-toggle-music" class="btn-nav btn-music" type="button" title="Toggle background music">
+          <i class="fa-solid fa-music"></i> <span>Music OFF</span>
+        </button>
+
+        <button id="btn-toggle-sound" class="btn-nav btn-sound active" type="button" title="Toggle sound effects">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+
+        <button id="btn-toggle-voice" class="btn-nav btn-voice active" type="button" title="Toggle voice narration">
+          <i class="fa-solid fa-comment-dots"></i> <span>Voice ON</span>
+        </button>
+
+        <!-- Star Tracker -->
+        <div class="stars-pill" title="Total Stars Earned">
+          <span class="star-glow">⭐</span>
+          <span id="nav-stars-count">0 / 30</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: Levels Roadmap View -->
+    <section id="screen-roadmap" class="screen-container">
+      <div class="roadmap-hero">
+        <div class="brand-badge">
+          <span>🌟</span> Pre-Primary Kids Learning Academy <span>🚀</span>
+        </div>
+        <h1 class="main-title">Study <span class="highlight">With Fun!</span> 🎓🎈</h1>
+        <p class="main-subtitle">
+          Master Alphabets, Numbers, Counting & Matching! Complete each level with stars to unlock the next exciting adventure!
+        </p>
+      </div>
+
+      <!-- 10 Progressive Level Cards Grid -->
+      <main id="roadmap-cards" class="roadmap-grid" aria-label="Level Selection Roadmap">
+        <!-- Injected dynamically by game.js -->
+      </main>
+
+      <!-- Roadmap Footer -->
+      <footer class="roadmap-footer">
+        <div class="footer-info">
+          <span>💡 Tip: Earn at least 1 star to unlock the next level!</span>
+        </div>
+        <button id="btn-reset-progress" class="btn-nav btn-reset" type="button">
+          <i class="fa-solid fa-rotate-left"></i> Reset Progress
+        </button>
+      </footer>
+    </section>
+
+    <!-- SCREEN 2: Interactive Play Screen -->
+    <section id="screen-play" class="screen-container hidden">
+      <div class="play-header">
+        <div class="play-top-row">
+          <button id="btn-back-to-map" class="btn-nav btn-home" type="button">
+            <i class="fa-solid fa-map"></i> <span>Level Map</span>
+          </button>
+          <div id="lbl-level-title" class="level-badge-title">Level 1: Next Alphabet</div>
+          <div class="play-stats">
+            <span id="lbl-round-counter" class="round-pill">Round 1 / 5</span>
+            <span class="score-pill">⭐ Score: <strong id="lbl-score">0</strong></span>
+          </div>
+        </div>
+
+        <div class="progress-bar-track" aria-hidden="true">
+          <div id="progress-bar-fill" class="progress-bar-fill"></div>
+        </div>
+      </div>
+
+      <!-- Play Stage Question Area -->
+      <div id="play-question-area" class="play-stage" role="region" aria-live="polite">
+        <!-- Injected dynamically per round -->
+      </div>
+    </section>
+
+    <!-- MODAL 1: Level Complete & Star Rating -->
+    <div id="modal-level-complete" class="modal-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-content">
+        <h2 id="modal-title" class="modal-title">🌟 Fantastic Job! 🌟</h2>
+        <p id="modal-subtitle" class="modal-subtitle">You finished this level!</p>
+
+        <!-- 3 Stars Container -->
+        <div id="modal-stars-container" class="modal-stars-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="modal-score-box">
+          Score: <span id="modal-score-val">100</span> pts
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-modal-next-level" class="btn-modal-primary" type="button">
+            <span>Next Level</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button id="btn-modal-replay" class="btn-modal-secondary" type="button">
+            <i class="fa-solid fa-rotate-right"></i> Play Again
+          </button>
+          <button id="btn-modal-map" class="btn-modal-secondary" type="button">
+            <i class="fa-solid fa-map"></i> Levels Map
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Graduation Grand Finale Celebration -->
+    <div id="modal-graduation" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <div class="trophy-badge">🏆</div>
+        <h2 class="modal-title">🎓 Pre-Primary Graduate! 🎓</h2>
+        <p class="modal-subtitle">
+          WOW! You mastered all Alphabets, Numbers, Counting, and Letter Matching! You are an official Super Learner! 🌟
+        </p>
+        <div class="modal-actions">
+          <button id="btn-grad-map" class="btn-modal-primary" type="button">
+            <i class="fa-solid fa-star"></i> View Your Stars Map
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Logic Scripts -->
+  <script src="js/audio.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
