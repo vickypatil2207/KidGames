@@ -62,7 +62,7 @@
         <!-- Star Tracker -->
         <div class="stars-pill" title="Total Stars Earned">
           <span class="star-glow">⭐</span>
-          <span id="nav-stars-count">0 / 30</span>
+          <span id="nav-stars-count">0 / 90</span>
         </div>
       </div>
     </header>
@@ -75,12 +75,12 @@
         </div>
         <h1 class="main-title">Study <span class="highlight">With Fun!</span> 🎓🎈</h1>
         <p class="main-subtitle">
-          Master Alphabets, Numbers, Counting & Matching! Complete each level with stars to unlock the next exciting adventure!
+          Master Alphabets, Numbers, Colors, Shapes, Opposites & Matching across 5 exciting Worlds! Earn up to 90 stars!
         </p>
       </div>
 
-      <!-- 10 Progressive Level Cards Grid -->
-      <main id="roadmap-cards" class="roadmap-grid" aria-label="Level Selection Roadmap">
+      <!-- 30 Progressive Levels across 5 Worlds -->
+      <main id="roadmap-cards" class="roadmap-worlds-container" aria-label="Level Selection Roadmap">
         <!-- Injected dynamically by game.js -->
       </main>
 
@@ -153,9 +153,9 @@
     <div id="modal-graduation" class="modal-overlay hidden" role="dialog" aria-modal="true">
       <div class="modal-content">
         <div class="trophy-badge">🏆</div>
-        <h2 class="modal-title">🎓 Pre-Primary Graduate! 🎓</h2>
+        <h2 class="modal-title">🎓 Pre-Primary Grand Graduate! 🎓</h2>
         <p class="modal-subtitle">
-          WOW! You mastered all Alphabets, Numbers, Counting, and Letter Matching! You are an official Super Learner! 🌟
+          WOW! You conquered all 30 levels across 5 worlds! You mastered Alphabets, Numbers, Colors, Shapes, Opposites & Phonics! You are an official Grand Master Super Learner! 🌟
         </p>
         <div class="modal-actions">
           <button id="btn-grad-map" class="btn-modal-primary" type="button">
@@ -169,6 +169,9 @@
 
   <!-- Application Logic Scripts -->
   <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/levels-data.js"></script>
+  <script src="js/activities.js"></script>
   <script src="js/game.js"></script>
 </body>
 </html>
