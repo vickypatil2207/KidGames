@@ -534,6 +534,11 @@ class StudyGame {
       });
     }
 
+    // Dynamic arrow redraw on resize / orientation change
+    window.addEventListener('resize', () => {
+      this.recalculateMatchArrows();
+    });
+
     // Modal Actions
     const btnNextLevel = document.getElementById('btn-modal-next-level');
     if (btnNextLevel) {
@@ -1165,6 +1170,8 @@ class StudyGame {
     line.setAttribute('stroke-width', isError ? '4' : '5');
     line.setAttribute('stroke-linecap', 'round');
     line.setAttribute('marker-end', `url(#${markerId})`);
+    line.setAttribute('data-upper', upperCard.getAttribute('data-letter') || '');
+    line.setAttribute('data-lower', lowerCard.getAttribute('data-letter') || '');
     if (isError) {
       line.classList.add('match-arrow-line-error');
     } else {
@@ -1172,6 +1179,34 @@ class StudyGame {
     }
 
     svg.appendChild(line);
+  }
+
+  recalculateMatchArrows() {
+    const arena = document.getElementById('match-arena');
+    const svg = document.getElementById('match-svg-canvas');
+    if (!arena || !svg) return;
+
+    const arenaRect = arena.getBoundingClientRect();
+    const lines = svg.querySelectorAll('line');
+    lines.forEach(line => {
+      const upperLetter = line.getAttribute('data-upper');
+      const lowerLetter = line.getAttribute('data-lower');
+      if (!upperLetter || !lowerLetter) return;
+      const upperCard = arena.querySelector(`.upper-card[data-letter="${upperLetter}"]`);
+      const lowerCard = arena.querySelector(`.lower-card[data-letter="${lowerLetter}"]`);
+      if (!upperCard || !lowerCard) return;
+
+      const upperPtr = upperCard.querySelector('.pointer-node') || upperCard;
+      const lowerPtr = lowerCard.querySelector('.pointer-node') || lowerCard;
+
+      const upperRect = upperPtr.getBoundingClientRect();
+      const lowerRect = lowerPtr.getBoundingClientRect();
+
+      line.setAttribute('x1', (upperRect.left + upperRect.width / 2) - arenaRect.left);
+      line.setAttribute('y1', (upperRect.top + upperRect.height / 2) - arenaRect.top);
+      line.setAttribute('x2', (lowerRect.left + lowerRect.width / 2) - arenaRect.left);
+      line.setAttribute('y2', (lowerRect.top + lowerRect.height / 2) - arenaRect.top);
+    });
   }
 
   /**

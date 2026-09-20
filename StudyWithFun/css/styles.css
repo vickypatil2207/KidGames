@@ -834,9 +834,9 @@ body {
 .match-arena {
   position: relative;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: space-between;
-  gap: 36px;
+  gap: 32px;
   margin: 12px auto 24px;
   max-width: 720px;
   width: 100%;
@@ -857,7 +857,8 @@ body {
   display: flex;
   flex-direction: column;
   gap: 14px;
-  flex: 1;
+  flex: 1 1 0;
+  min-width: 0;
   position: relative;
   z-index: 2;
 }
@@ -868,6 +869,7 @@ body {
   color: var(--text-muted);
   text-align: center;
   margin-bottom: 4px;
+  white-space: nowrap;
 }
 
 .match-card {
@@ -883,11 +885,20 @@ body {
   justify-content: space-between;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  flex: 1 1 0;
 }
 
 .match-card:hover {
   transform: translateY(-3px);
   filter: brightness(1.03);
+}
+
+.card-text-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .pointer-node {
@@ -915,14 +926,19 @@ body {
 }
 
 .card-main-letter {
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
+  line-height: 1;
+  flex-shrink: 0;
 }
 
 .card-hint {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .match-card.selected {
@@ -1007,37 +1023,13 @@ body {
 }
 
 .match-divider {
-  font-size: 2rem;
+  font-size: 1.8rem;
   color: #CBD5E1;
   z-index: 1;
-}
-
-.card-main-letter {
-  font-size: 2.2rem;
-  font-weight: 800;
-}
-
-.card-hint {
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.match-card.selected {
-  outline: 4px solid var(--primary-pink);
-  transform: scale(1.06);
-}
-
-.match-card.paired {
-  background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%);
-  color: #065F46;
-  border-color: #34D399;
-  cursor: default;
-  opacity: 0.9;
-}
-
-.match-divider {
-  font-size: 2rem;
-  color: #CBD5E1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 /* Missing Letter Activity */
@@ -1223,11 +1215,15 @@ body {
     font-size: 1.8rem;
   }
   .match-arena {
-    flex-direction: column;
+    flex-direction: row;
     gap: 16px;
+    align-items: stretch;
   }
   .match-divider {
-    transform: rotate(90deg);
+    display: none;
+  }
+  .match-col {
+    gap: 12px;
   }
 }
 
@@ -1404,6 +1400,61 @@ body {
     height: 22px;
     font-size: 0.8rem;
   }
+
+  /* Match Letters Arena: strictly keep Big and Small letters side-by-side on mobile */
+  .match-arena {
+    flex-direction: row;
+    gap: 10px;
+    margin: 8px auto 18px;
+    align-items: stretch;
+  }
+
+  .match-divider {
+    display: none;
+  }
+
+  .match-col {
+    gap: 10px;
+  }
+
+  .col-heading {
+    font-size: 0.95rem;
+    margin-bottom: 2px;
+    white-space: nowrap;
+  }
+
+  .match-card {
+    padding: 8px 10px;
+    min-height: 52px;
+    border-width: 3px;
+  }
+
+  .card-text-group {
+    gap: 6px;
+  }
+
+  .card-main-letter {
+    font-size: 1.6rem;
+  }
+
+  .card-hint {
+    font-size: 0.8rem;
+  }
+
+  .pointer-node {
+    width: 20px;
+    height: 20px;
+    font-size: 0.65rem;
+    border-width: 2px;
+  }
+
+  .pointer-right {
+    margin-left: 6px;
+  }
+
+  .pointer-left {
+    margin-right: 6px;
+  }
 }
 
 /* Extra Small Devices (e.g. 360px and smaller phones) */
@@ -1447,5 +1498,49 @@ body {
   .stars-pill {
     padding: 4px 8px;
     font-size: 0.8rem;
+  }
+
+  .match-arena {
+    gap: 6px;
+    margin: 6px auto 14px;
+  }
+
+  .match-col {
+    gap: 8px;
+  }
+
+  .col-heading {
+    font-size: 0.82rem;
+  }
+
+  .match-card {
+    padding: 6px 8px;
+    min-height: 46px;
+  }
+
+  .card-text-group {
+    gap: 4px;
+  }
+
+  .card-main-letter {
+    font-size: 1.35rem;
+  }
+
+  .card-hint {
+    font-size: 0.72rem;
+  }
+
+  .pointer-node {
+    width: 18px;
+    height: 18px;
+    font-size: 0.58rem;
+  }
+
+  .pointer-right {
+    margin-left: 4px;
+  }
+
+  .pointer-left {
+    margin-right: 4px;
   }
 }
