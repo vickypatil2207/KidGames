@@ -1,6 +1,6 @@
 /**
  * Study With Fun - Pre-Primary Comprehensive Game Data
- * 30 Progressive Levels across 5 Themed Worlds (90 Stars Total)
+ * 36 Progressive Levels across 5 Themed Worlds (108 Stars Total)
  * Includes Letter Color Palettes & Asset Dictionaries
  */
 
@@ -34,48 +34,180 @@ const LETTER_COLOR_PALETTE = {
   'Z': { name: 'Zebra Dark', color: '#334155', bg: '#E2E8F0', border: '#1E293B' }
 };
 
+// High-fidelity, kid-friendly vector illustrations for items that lack uniform OS emoji font support on desktop/laptops
+const GAME_SVGS = {
+  carWheel: `<svg class="game-svg-icon" viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <radialGradient id="svg-wheel-tire" cx="50%" cy="50%" r="50%">
+        <stop offset="60%" stop-color="#1E293B"/>
+        <stop offset="90%" stop-color="#0F172A"/>
+        <stop offset="100%" stop-color="#020617"/>
+      </radialGradient>
+      <radialGradient id="svg-wheel-rim" cx="35%" cy="35%" r="65%">
+        <stop offset="0%" stop-color="#F8FAFC"/>
+        <stop offset="60%" stop-color="#CBD5E1"/>
+        <stop offset="100%" stop-color="#94A3B8"/>
+      </radialGradient>
+      <radialGradient id="svg-wheel-hub" cx="40%" cy="40%" r="60%">
+        <stop offset="0%" stop-color="#38BDF8"/>
+        <stop offset="100%" stop-color="#0284C7"/>
+      </radialGradient>
+    </defs>
+    <circle cx="50" cy="50" r="46" fill="url(#svg-wheel-tire)" stroke="#334155" stroke-width="2"/>
+    <path d="M50 4 v4 M50 92 v4 M4 50 h4 M92 50 h4 M17 17 l3 3 M80 80 l3 3 M17 83 l3 -3 M80 20 l3 -3" stroke="#475569" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="50" cy="50" r="31" fill="url(#svg-wheel-rim)" stroke="#64748B" stroke-width="2"/>
+    <circle cx="50" cy="50" r="23" fill="none" stroke="#64748B" stroke-width="4" stroke-dasharray="14 10"/>
+    <circle cx="50" cy="50" r="13" fill="url(#svg-wheel-hub)" stroke="#0369A1" stroke-width="2"/>
+    <circle cx="50" cy="50" r="4" fill="#FFFFFF"/>
+    <circle cx="50" cy="40" r="2.2" fill="#475569"/>
+    <circle cx="58" cy="46" r="2.2" fill="#475569"/>
+    <circle cx="55" cy="56" r="2.2" fill="#475569"/>
+    <circle cx="45" cy="56" r="2.2" fill="#475569"/>
+    <circle cx="42" cy="46" r="2.2" fill="#475569"/>
+  </svg>`,
+
+  heavyRock: `<svg class="game-svg-icon" viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="svg-rock-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#94A3B8"/>
+        <stop offset="50%" stop-color="#64748B"/>
+        <stop offset="100%" stop-color="#334155"/>
+      </linearGradient>
+      <linearGradient id="svg-rock-facet" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%" stop-color="#CBD5E1" stop-opacity="0.85"/>
+        <stop offset="100%" stop-color="#94A3B8" stop-opacity="0.2"/>
+      </linearGradient>
+    </defs>
+    <ellipse cx="50" cy="85" rx="38" ry="9" fill="#000000" opacity="0.18"/>
+    <path d="M 22 78 C 12 74, 10 56, 18 42 C 24 30, 36 16, 52 14 C 68 12, 82 24, 88 38 C 94 52, 92 70, 80 80 C 70 86, 32 86, 22 78 Z" fill="url(#svg-rock-grad)" stroke="#1E293B" stroke-width="3.5" stroke-linejoin="round"/>
+    <path d="M 26 40 L 48 24 L 62 42 L 38 56 Z" fill="url(#svg-rock-facet)"/>
+    <path d="M 52 14 L 68 28 L 86 36 L 62 42 Z" fill="#E2E8F0" opacity="0.4"/>
+    <path d="M 38 56 L 62 42 L 78 60 L 56 78 Z" fill="#1E293B" opacity="0.25"/>
+    <path d="M 62 42 L 70 52 L 66 60" stroke="#1E293B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M 38 56 L 44 68" stroke="#1E293B" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <circle cx="34" cy="30" r="3" fill="#FFFFFF" opacity="0.6"/>
+    <circle cx="44" cy="22" r="2" fill="#FFFFFF" opacity="0.6"/>
+  </svg>`,
+
+  lightFeather: `<svg class="game-svg-icon" viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="svg-feather-grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#38BDF8"/>
+        <stop offset="50%" stop-color="#818CF8"/>
+        <stop offset="100%" stop-color="#C084FC"/>
+      </linearGradient>
+      <linearGradient id="svg-feather-grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#7DD3FC"/>
+        <stop offset="50%" stop-color="#A5B4FC"/>
+        <stop offset="100%" stop-color="#E879F9"/>
+      </linearGradient>
+    </defs>
+    <path d="M 82 14 C 76 22, 60 26, 44 38 C 30 48, 22 62, 18 80 C 26 78, 36 72, 46 64 C 62 50, 76 34, 82 14 Z" fill="url(#svg-feather-grad1)"/>
+    <path d="M 82 14 C 74 16, 56 20, 42 32 C 28 44, 20 60, 16 78 C 22 76, 32 70, 40 60 C 56 46, 72 28, 82 14 Z" fill="url(#svg-feather-grad2)" opacity="0.85"/>
+    <path d="M 68 25 L 60 30 M 52 38 L 42 44 M 38 52 L 28 58 M 72 20 L 78 26 M 58 32 L 66 40 M 44 46 L 50 54" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" opacity="0.6"/>
+    <path d="M 84 12 C 68 32, 44 56, 12 88" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <path d="M 84 12 C 68 32, 44 56, 12 88" stroke="#E0F2FE" stroke-width="2" stroke-linecap="round" fill="none"/>
+    <path d="M 16 84 L 8 92" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="78" cy="38" r="2.5" fill="#38BDF8" opacity="0.7"/>
+    <circle cx="32" cy="28" r="2" fill="#C084FC" opacity="0.7"/>
+    <circle cx="20" cy="46" r="2.5" fill="#F472B6" opacity="0.7"/>
+  </svg>`,
+
+  blackCrow: `<svg class="game-svg-icon" viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="svg-crow-body" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#334155"/>
+        <stop offset="40%" stop-color="#1E293B"/>
+        <stop offset="100%" stop-color="#0F172A"/>
+      </linearGradient>
+      <linearGradient id="svg-crow-beak" x1="0%" y1="0%" x2="100%" y2="50%">
+        <stop offset="0%" stop-color="#FBBF24"/>
+        <stop offset="100%" stop-color="#F59E0B"/>
+      </linearGradient>
+    </defs>
+    <path d="M 28 62 L 10 74 L 14 62 L 8 68 L 22 56 Z" fill="#0F172A"/>
+    <path d="M 42 74 L 40 88 M 40 88 L 34 88 M 40 88 L 44 88 M 54 74 L 54 88 M 54 88 L 48 88 M 54 88 L 58 88" stroke="#D97706" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="46" cy="56" rx="24" ry="20" fill="url(#svg-crow-body)" stroke="#0F172A" stroke-width="1.5"/>
+    <path d="M 34 46 C 44 46, 56 52, 54 64 C 52 74, 38 74, 26 66 C 24 58, 28 48, 34 46 Z" fill="#0F172A" stroke="#334155" stroke-width="2"/>
+    <path d="M 32 54 C 40 54, 48 60, 44 68 M 28 60 C 34 60, 40 64, 36 70" stroke="#475569" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="62" cy="34" r="16" fill="url(#svg-crow-body)" stroke="#0F172A" stroke-width="1.5"/>
+    <circle cx="67" cy="32" r="5" fill="#FFFFFF"/>
+    <circle cx="68" cy="32" r="2.8" fill="#0F172A"/>
+    <circle cx="69.5" cy="30.5" r="1.2" fill="#FFFFFF"/>
+    <path d="M 74 30 L 94 36 C 88 40, 80 42, 74 42 Z" fill="url(#svg-crow-beak)" stroke="#D97706" stroke-width="1.5"/>
+    <path d="M 74 36 L 90 36" stroke="#B45309" stroke-width="1"/>
+    <path d="M 58 20 C 58 14, 52 14, 54 20 M 62 19 C 64 12, 58 12, 60 19" stroke="#334155" stroke-width="2" stroke-linecap="round"/>
+  </svg>`,
+
+  cutSandwich: `<svg class="game-svg-icon" viewBox="0 0 100 100" width="1em" height="1em" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="svg-sandwich-crust" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#D97706"/>
+        <stop offset="100%" stop-color="#B45309"/>
+      </linearGradient>
+      <linearGradient id="svg-sandwich-bread" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#FEF3C7"/>
+        <stop offset="100%" stop-color="#FDE68A"/>
+      </linearGradient>
+    </defs>
+    <polygon points="50,18 88,82 12,82" fill="#000000" opacity="0.12" transform="translate(0, 4)"/>
+    <polygon points="50,14 88,78 12,78" fill="url(#svg-sandwich-crust)" stroke="#92400E" stroke-width="3" stroke-linejoin="round"/>
+    <polygon points="50,18 84,75 16,75" fill="url(#svg-sandwich-bread)"/>
+    <path d="M 14 68 Q 22 62, 30 68 Q 38 62, 46 68 Q 54 62, 62 68 Q 70 62, 78 68 Q 84 64, 86 68" stroke="#10B981" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <rect x="24" y="65" width="14" height="4" rx="2" fill="#EF4444"/>
+    <rect x="52" y="65" width="16" height="4" rx="2" fill="#EF4444"/>
+    <path d="M 18 70 L 82 70 L 76 74 L 64 74 L 60 77 L 54 74 L 40 74 L 36 78 L 30 74 Z" fill="#F59E0B"/>
+    <polygon points="50,22 82,72 18,72" fill="#FEF08A" stroke="#D97706" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="48" cy="42" r="1.5" fill="#D97706" opacity="0.6"/>
+    <circle cx="56" cy="50" r="1.8" fill="#D97706" opacity="0.6"/>
+    <circle cx="42" cy="56" r="1.5" fill="#D97706" opacity="0.6"/>
+    <circle cx="64" cy="62" r="1.5" fill="#D97706" opacity="0.6"/>
+    <circle cx="34" cy="64" r="1.8" fill="#D97706" opacity="0.6"/>
+  </svg>`
+};
+
 // 5 Progressive Worlds Metadata
 const GAME_WORLDS = [
   {
     id: 1,
     name: 'Discovery Garden',
-    range: 'Levels 1 – 6',
+    range: 'Levels 1 – 8',
     icon: '🌱',
     color: '#10B981',
     bgGrad: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
-    desc: 'Explore early ABCs, bright colors, friendly shapes, and 1-5 counting!'
+    desc: 'Explore early ABCs, in-between letters, colors, friendly shapes, and 1-5 numbers!'
   },
   {
     id: 2,
     name: 'Junior Explorers',
-    range: 'Levels 7 – 12',
+    range: 'Levels 9 – 15',
     icon: '🚀',
     color: '#3B82F6',
     bgGrad: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
-    desc: 'Uncover picture matches, odd-one-out detectives, and 3-letter CVC phonics!'
+    desc: 'Uncover picture matches, odd-one-out detectives, in-between ABCs, and 3-letter CVC phonics!'
   },
   {
     id: 3,
     name: 'Adventure Academy',
-    range: 'Levels 13 – 18',
+    range: 'Levels 16 – 22',
     icon: '🏝️',
     color: '#8B5CF6',
     bgGrad: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
-    desc: 'Master number stepping stones, 4-5 letter pairs, and shape mysteries!'
+    desc: 'Master number stepping stones, in-between teen numbers, letter pairs, and shape mysteries!'
   },
   {
     id: 4,
     name: 'Brainy Champions',
-    range: 'Levels 19 – 24',
+    range: 'Levels 23 – 29',
     icon: '🏰',
     color: '#EC4899',
     bgGrad: 'linear-gradient(135deg, #EC4899 0%, #BE185D 100%)',
-    desc: 'Hop through skip-counting, tricky look-alike letters, and 4-letter words!'
+    desc: 'Hop through skip-counting, tricky in-between letters, and 4-letter words!'
   },
   {
     id: 5,
     name: 'Grand Master Legends',
-    range: 'Levels 25 – 30',
+    range: 'Levels 30 – 36',
     icon: '👑',
     color: '#F59E0B',
     bgGrad: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
@@ -83,10 +215,10 @@ const GAME_WORLDS = [
   }
 ];
 
-// 30 Comprehensive Pre-Primary Levels
+// 36 Comprehensive Pre-Primary Levels
 const GAME_LEVELS = [
   /* ====================================================================
-     WORLD 1: DISCOVERY GARDEN (LEVELS 1 - 6)
+     WORLD 1: DISCOVERY GARDEN (LEVELS 1 - 8)
      ==================================================================== */
   {
     id: 1,
@@ -109,9 +241,27 @@ const GAME_LEVELS = [
   {
     id: 2,
     worldId: 1,
+    title: 'In-Between Alphabet (A-J)',
+    subtitle: 'Find what friendly letter is hiding in the middle!',
+    badge: '🔤 Level 2',
+    icon: '🔤',
+    type: 'between_alpha',
+    color: '#0EA5E9',
+    bgGrad: 'linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%)',
+    rounds: [
+      { before: 'A', after: 'C', answer: 'B', options: ['B', 'D', 'E', 'C'], phonic: 'B is for Butterfly 🦋' },
+      { before: 'C', after: 'E', answer: 'D', options: ['B', 'D', 'F', 'A'], phonic: 'D is for Dinosaur 🦕' },
+      { before: 'F', after: 'H', answer: 'G', options: ['E', 'I', 'G', 'J'], phonic: 'G is for Giraffe 🦒' },
+      { before: 'D', after: 'F', answer: 'E', options: ['C', 'E', 'G', 'B'], phonic: 'E is for Elephant 🐘' },
+      { before: 'H', after: 'J', answer: 'I', options: ['K', 'G', 'I', 'H'], phonic: 'I is for Ice Cream 🍦' }
+    ]
+  },
+  {
+    id: 3,
+    worldId: 1,
     title: 'World of Colors',
     subtitle: 'Discover what bright color each yummy fruit and friend has!',
-    badge: '🎨 Level 2',
+    badge: '🎨 Level 3',
     icon: '🎨',
     type: 'identify_color',
     color: '#F97316',
@@ -125,11 +275,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 3,
+    id: 4,
     worldId: 1,
     title: 'Counting Numbers (1-5)',
     subtitle: 'Count the cute items and tap the right number!',
-    badge: '🔢 Level 3',
+    badge: '🔢 Level 4',
     icon: '🍎',
     type: 'count_items',
     color: '#4ECDC4',
@@ -143,17 +293,35 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 4,
+    id: 5,
+    worldId: 1,
+    title: 'In-Between Numbers (1-10)',
+    subtitle: 'Which number sits right in the middle? 4 ➔ ? ➔ 6!',
+    badge: '🔢 Level 5',
+    icon: '🎯',
+    type: 'between_num',
+    color: '#10B981',
+    bgGrad: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+    rounds: [
+      { before: 1, after: 3, answer: 2, options: [2, 4, 3, 5], hint: 'What number is between 1 and 3?' },
+      { before: 4, after: 6, answer: 5, options: [3, 5, 7, 6], hint: 'What number is between 4 and 6?' },
+      { before: 6, after: 8, answer: 7, options: [5, 9, 7, 8], hint: 'What number is between 6 and 8?' },
+      { before: 2, after: 4, answer: 3, options: [5, 1, 3, 4], hint: 'What number is between 2 and 4?' },
+      { before: 7, after: 9, answer: 8, options: [6, 8, 10, 7], hint: 'What number is between 7 and 9?' }
+    ]
+  },
+  {
+    id: 6,
     worldId: 1,
     title: 'Fun with Shapes',
     subtitle: 'Identify round circles, sturdy squares, and yummy pizza triangles!',
-    badge: '🔷 Level 4',
+    badge: '🔷 Level 6',
     icon: '⭕',
     type: 'identify_shape',
     color: '#06D6A0',
     bgGrad: 'linear-gradient(135deg, #06D6A0 0%, #118AB2 100%)',
     rounds: [
-      { item: '🛞', name: 'Car Wheel', answer: 'Circle', icon: '⭕', options: ['Circle', 'Square', 'Triangle', 'Star'] },
+      { item: GAME_SVGS.carWheel, name: 'Car Wheel', answer: 'Circle', icon: '⭕', options: ['Circle', 'Square', 'Triangle', 'Star'] },
       { item: '🎁', name: 'Gift Box', answer: 'Square', icon: '⏹️', options: ['Triangle', 'Square', 'Circle', 'Rectangle'] },
       { item: '🍕', name: 'Pizza Slice', answer: 'Triangle', icon: '🔺', options: ['Circle', 'Star', 'Triangle', 'Square'] },
       { item: '🚪', name: 'Room Door', answer: 'Rectangle', icon: '▭', options: ['Rectangle', 'Circle', 'Square', 'Diamond'] },
@@ -161,11 +329,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 5,
+    id: 7,
     worldId: 1,
     title: 'Big or Small? (Opposites)',
     subtitle: 'Compare two buddies and choose which is Big or Small!',
-    badge: '⚖️ Level 5',
+    badge: '⚖️ Level 7',
     icon: '🐘',
     type: 'compare_opposites',
     color: '#845EC2',
@@ -204,11 +372,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 6,
+    id: 8,
     worldId: 1,
     title: 'Match Big & Small (A-H)',
     subtitle: 'Connect Capital and Small letters together!',
-    badge: '🧩 Level 6',
+    badge: '🧩 Level 8',
     icon: 'Aa',
     type: 'match_letters',
     color: '#FFBE0B',
@@ -239,14 +407,14 @@ const GAME_LEVELS = [
   },
 
   /* ====================================================================
-     WORLD 2: JUNIOR EXPLORERS (LEVELS 7 - 12)
+     WORLD 2: JUNIOR EXPLORERS (LEVELS 9 - 15)
      ==================================================================== */
   {
-    id: 7,
+    id: 9,
     worldId: 2,
     title: 'Spot the Odd One Out',
     subtitle: 'Can you spot which one is different in the row?',
-    badge: '🔍 Level 7',
+    badge: '🔍 Level 9',
     icon: '👀',
     type: 'odd_one_out',
     color: '#0284C7',
@@ -260,11 +428,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 8,
+    id: 10,
     worldId: 2,
     title: 'Picture to Alphabet (A-H)',
     subtitle: 'Connect each picture to its first starting letter!',
-    badge: '🖼️ Level 8',
+    badge: '🖼️ Level 10',
     icon: '🍎',
     type: 'match_picture',
     color: '#E11D48',
@@ -272,33 +440,33 @@ const GAME_LEVELS = [
     rounds: [
       {
         pairs: [
-          { item: '🍎 Apple', letter: 'A' },
-          { item: '🐱 Cat', letter: 'C' },
-          { item: '🐶 Dog', letter: 'D' }
+          { emoji: '🍎', word: 'Apple', letter: 'A' },
+          { emoji: '🐱', word: 'Cat', letter: 'C' },
+          { emoji: '🐶', word: 'Dog', letter: 'D' }
         ]
       },
       {
         pairs: [
-          { item: '🐘 Elephant', letter: 'E' },
-          { item: '🐟 Fish', letter: 'F' },
-          { item: '🍇 Grapes', letter: 'G' }
+          { emoji: '🐘', word: 'Elephant', letter: 'E' },
+          { emoji: '🐟', word: 'Fish', letter: 'F' },
+          { emoji: '🍇', word: 'Grapes', letter: 'G' }
         ]
       },
       {
         pairs: [
-          { item: '⚽ Ball', letter: 'B' },
-          { item: '🏠 House', letter: 'H' },
-          { item: '🦆 Duck', letter: 'D' }
+          { emoji: '⚽', word: 'Ball', letter: 'B' },
+          { emoji: '🏠', word: 'House', letter: 'H' },
+          { emoji: '🦆', word: 'Duck', letter: 'D' }
         ]
       }
     ]
   },
   {
-    id: 9,
+    id: 11,
     worldId: 2,
     title: 'Counting Adventure (6-10)',
     subtitle: 'Count more delightful toys and animal buddies!',
-    badge: '🔢 Level 9',
+    badge: '🔢 Level 11',
     icon: '🦁',
     type: 'count_items',
     color: '#06D6A0',
@@ -312,11 +480,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 10,
+    id: 12,
     worldId: 2,
     title: 'Missing Phonics Letter (CVC)',
     subtitle: 'Spell the animal or object by filling the missing letter!',
-    badge: '📖 Level 10',
+    badge: '📖 Level 12',
     icon: '🐱',
     type: 'missing_letter',
     color: '#E63946',
@@ -330,11 +498,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 11,
+    id: 13,
     worldId: 2,
     title: 'Tall, Short & Heavy (Opposites)',
     subtitle: 'Compare height and weight with fun animal buddies!',
-    badge: '⚖️ Level 11',
+    badge: '⚖️ Level 13',
     icon: '🦒',
     type: 'compare_opposites',
     color: '#0D9488',
@@ -355,8 +523,8 @@ const GAME_LEVELS = [
       {
         question: 'Which one is HEAVY?',
         target: 'Heavy',
-        cardA: { emoji: '🪨', label: 'Heavy Rock', value: 'Heavy' },
-        cardB: { emoji: '🪶', label: 'Light Feather', value: 'Light' }
+        cardA: { emoji: GAME_SVGS.heavyRock, label: 'Heavy Rock', value: 'Heavy' },
+        cardB: { emoji: GAME_SVGS.lightFeather, label: 'Light Feather', value: 'Light' }
       },
       {
         question: 'Which one is LIGHT?',
@@ -373,11 +541,29 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 12,
+    id: 14,
+    worldId: 2,
+    title: 'In-Between Alphabet (K-T)',
+    subtitle: 'Spot the missing letter hopping between friends!',
+    badge: '🔤 Level 14',
+    icon: '🚂',
+    type: 'between_alpha',
+    color: '#8B5CF6',
+    bgGrad: 'linear-gradient(135deg, #8B5CF6 0%, #6D28D9 100%)',
+    rounds: [
+      { before: 'J', after: 'L', answer: 'K', options: ['M', 'K', 'I', 'N'], phonic: 'K is for Kangaroo 🦘' },
+      { before: 'L', after: 'N', answer: 'M', options: ['O', 'L', 'M', 'K'], phonic: 'M is for Monkey 🐵' },
+      { before: 'N', after: 'P', answer: 'O', options: ['Q', 'O', 'P', 'R'], phonic: 'O is for Owl 🦉' },
+      { before: 'P', after: 'R', answer: 'Q', options: ['S', 'P', 'Q', 'T'], phonic: 'Q is for Queen 👑' },
+      { before: 'R', after: 'T', answer: 'S', options: ['U', 'R', 'S', 'Q'], phonic: 'S is for Star ⭐' }
+    ]
+  },
+  {
+    id: 15,
     worldId: 2,
     title: 'Next Alphabet (N-Z)',
     subtitle: 'Keep the alphabet train chugging along to the end!',
-    badge: '🔤 Level 12',
+    badge: '🔤 Level 15',
     icon: '🚂',
     type: 'next_alpha',
     color: '#9B5DE5',
@@ -392,14 +578,14 @@ const GAME_LEVELS = [
   },
 
   /* ====================================================================
-     WORLD 3: ADVENTURE ACADEMY (LEVELS 13 - 18)
+     WORLD 3: ADVENTURE ACADEMY (LEVELS 16 - 22)
      ==================================================================== */
   {
-    id: 13,
+    id: 16,
     worldId: 3,
     title: 'What Number Next? (1-10)',
     subtitle: 'Hop along the colorful number stepping stones!',
-    badge: '🔢 Level 13',
+    badge: '🔢 Level 16',
     icon: '1️⃣',
     type: 'next_num',
     color: '#F77F00',
@@ -413,11 +599,29 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 14,
+    id: 17,
+    worldId: 3,
+    title: 'In-Between Numbers (10-20)',
+    subtitle: 'Find the secret teen number hidden in between!',
+    badge: '🔢 Level 17',
+    icon: '🔢',
+    type: 'between_num',
+    color: '#F59E0B',
+    bgGrad: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
+    rounds: [
+      { before: 10, after: 12, answer: 11, options: [11, 13, 9, 12], hint: 'What number is between 10 and 12?' },
+      { before: 12, after: 14, answer: 13, options: [15, 11, 13, 14], hint: 'What number is between 12 and 14?' },
+      { before: 14, after: 16, answer: 15, options: [17, 15, 13, 16], hint: 'What number is between 14 and 16?' },
+      { before: 16, after: 18, answer: 17, options: [19, 15, 17, 18], hint: 'What number is between 16 and 18?' },
+      { before: 18, after: 20, answer: 19, options: [17, 19, 21, 20], hint: 'What number is between 18 and 20?' }
+    ]
+  },
+  {
+    id: 18,
     worldId: 3,
     title: 'Color Detective',
     subtitle: 'Identify more delightful colors in nature and treats!',
-    badge: '🎨 Level 14',
+    badge: '🎨 Level 18',
     icon: '🍇',
     type: 'identify_color',
     color: '#9333EA',
@@ -426,16 +630,16 @@ const GAME_LEVELS = [
       { item: '🍇', name: 'Grapes', answer: 'Purple', hex: '#A855F7', options: ['Purple', 'Green', 'Orange', 'Red'] },
       { item: '🦩', name: 'Flamingo', answer: 'Pink', hex: '#EC4899', options: ['Blue', 'Pink', 'Yellow', 'Green'] },
       { item: '🍫', name: 'Chocolate Bar', answer: 'Brown', hex: '#78350F', options: ['Black', 'Brown', 'Purple', 'Red'] },
-      { item: '🐦‍⬛', name: 'Crow', answer: 'Black', hex: '#1E293B', options: ['Blue', 'Black', 'Brown', 'Green'] },
+      { item: GAME_SVGS.blackCrow, name: 'Crow', answer: 'Black', hex: '#1E293B', options: ['Blue', 'Black', 'Brown', 'Green'] },
       { item: '⛄', name: 'Snowman', answer: 'White', hex: '#F8FAFC', options: ['Yellow', 'White', 'Pink', 'Blue'] }
     ]
   },
   {
-    id: 15,
+    id: 19,
     worldId: 3,
     title: 'Match Big & Small (I-P)',
     subtitle: 'Pair up 4 Capital and Small letter buddies!',
-    badge: '🧩 Level 15',
+    badge: '🧩 Level 19',
     icon: 'Ii',
     type: 'match_letters',
     color: '#3A86FF',
@@ -452,7 +656,7 @@ const GAME_LEVELS = [
       {
         pairs: [
           { upper: 'M', lower: 'm', word: 'Moon 🌙' },
-          { upper: 'N', lower: 'n', word: 'Nest 🪺' },
+          { upper: 'N', lower: 'n', word: 'Nut 🥜' },
           { upper: 'O', lower: 'o', word: 'Orange 🍊' },
           { upper: 'P', lower: 'p', word: 'Panda 🐼' }
         ]
@@ -468,11 +672,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 16,
+    id: 20,
     worldId: 3,
     title: 'Shape Detective',
     subtitle: 'Find diamond kites, chalkboard rectangles, and star trophies!',
-    badge: '🔷 Level 16',
+    badge: '🔷 Level 20',
     icon: '🪁',
     type: 'identify_shape',
     color: '#0891B2',
@@ -481,16 +685,16 @@ const GAME_LEVELS = [
       { item: '🪁', name: 'Flying Kite', answer: 'Diamond', icon: '🔷', options: ['Circle', 'Diamond', 'Triangle', 'Square'] },
       { item: '📋', name: 'School Chalkboard', answer: 'Rectangle', icon: '▭', options: ['Square', 'Rectangle', 'Circle', 'Star'] },
       { item: '⏰', name: 'Wall Clock', answer: 'Circle', icon: '⭕', options: ['Triangle', 'Circle', 'Diamond', 'Rectangle'] },
-      { item: '🥪', name: 'Cut Sandwich', answer: 'Triangle', icon: '🔺', options: ['Square', 'Circle', 'Triangle', 'Diamond'] },
+      { item: GAME_SVGS.cutSandwich, name: 'Cut Sandwich', answer: 'Triangle', icon: '🔺', options: ['Square', 'Circle', 'Triangle', 'Diamond'] },
       { item: '🧇', name: 'Square Waffle', answer: 'Square', icon: '⏹️', options: ['Square', 'Circle', 'Rectangle', 'Star'] }
     ]
   },
   {
-    id: 17,
+    id: 21,
     worldId: 3,
     title: 'Tricky Odd One Out',
     subtitle: 'Look closely at letters and numbers that look similar!',
-    badge: '🔍 Level 17',
+    badge: '🔍 Level 21',
     icon: '🧐',
     type: 'odd_one_out',
     color: '#D97706',
@@ -504,11 +708,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 18,
+    id: 22,
     worldId: 3,
     title: 'Word Builder (4-Letters)',
     subtitle: 'Solve tricky 4-letter words with missing phonics letters!',
-    badge: '📖 Level 18',
+    badge: '📖 Level 22',
     icon: '🐸',
     type: 'missing_letter',
     color: '#EC4899',
@@ -523,14 +727,14 @@ const GAME_LEVELS = [
   },
 
   /* ====================================================================
-     WORLD 4: BRAINY CHAMPIONS (LEVELS 19 - 24)
+     WORLD 4: BRAINY CHAMPIONS (LEVELS 23 - 29)
      ==================================================================== */
   {
-    id: 19,
+    id: 23,
     worldId: 4,
     title: 'Skip Counting (2s & 5s)',
     subtitle: 'Hop by twos and fives to discover the next number!',
-    badge: '🦘 Level 19',
+    badge: '🦘 Level 23',
     icon: '🦘',
     type: 'next_num',
     color: '#0EA5E9',
@@ -544,11 +748,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 20,
+    id: 24,
     worldId: 4,
     title: 'Picture to Alphabet (I-P)',
     subtitle: 'Match animals and objects to their starting letter!',
-    badge: '🖼️ Level 20',
+    badge: '🖼️ Level 24',
     icon: '🦁',
     type: 'match_picture',
     color: '#6366F1',
@@ -556,36 +760,36 @@ const GAME_LEVELS = [
     rounds: [
       {
         pairs: [
-          { item: '🍦 Ice Cream', letter: 'I' },
-          { item: '🪁 Kite', letter: 'K' },
-          { item: '🦁 Lion', letter: 'L' },
-          { item: '🐵 Monkey', letter: 'M' }
+          { emoji: '🍦', word: 'Ice Cream', letter: 'I' },
+          { emoji: '🪁', word: 'Kite', letter: 'K' },
+          { emoji: '🦁', word: 'Lion', letter: 'L' },
+          { emoji: '🐵', word: 'Monkey', letter: 'M' }
         ]
       },
       {
         pairs: [
-          { item: '🪺 Nest', letter: 'N' },
-          { item: '🍊 Orange', letter: 'O' },
-          { item: '🐼 Panda', letter: 'P' },
-          { item: '🧃 Juice', letter: 'J' }
+          { emoji: '👃', word: 'Nose', letter: 'N' },
+          { emoji: '🍊', word: 'Orange', letter: 'O' },
+          { emoji: '🐼', word: 'Panda', letter: 'P' },
+          { emoji: '🧃', word: 'Juice', letter: 'J' }
         ]
       },
       {
         pairs: [
-          { item: '🌙 Moon', letter: 'M' },
-          { item: '🍋 Lemon', letter: 'L' },
-          { item: '🦜 Parrot', letter: 'P' },
-          { item: '🐨 Koala', letter: 'K' }
+          { emoji: '🌙', word: 'Moon', letter: 'M' },
+          { emoji: '🍋', word: 'Lemon', letter: 'L' },
+          { emoji: '🦜', word: 'Parrot', letter: 'P' },
+          { emoji: '🔑', word: 'Key', letter: 'K' }
         ]
       }
     ]
   },
   {
-    id: 21,
+    id: 25,
     worldId: 4,
     title: 'Counting Big Groups (11-15)',
     subtitle: 'Count larger bunches of colorful gems and sweet treats!',
-    badge: '🔢 Level 21',
+    badge: '🔢 Level 25',
     icon: '🧁',
     type: 'count_items',
     color: '#10B981',
@@ -599,11 +803,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 22,
+    id: 26,
     worldId: 4,
     title: 'Hard, Soft & Fast (Opposites)',
     subtitle: 'Feel the touch and speed with cool opposite cards!',
-    badge: '⚖️ Level 22',
+    badge: '⚖️ Level 26',
     icon: '🧱',
     type: 'compare_opposites',
     color: '#CA8A04',
@@ -642,11 +846,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 23,
+    id: 27,
     worldId: 4,
     title: 'Master Letter Match (Q-Z)',
     subtitle: 'Match 4 Capital and Small letter buddies from Q to Z!',
-    badge: '🧩 Level 23',
+    badge: '🧩 Level 27',
     icon: 'Qq',
     type: 'match_letters',
     color: '#7209B7',
@@ -679,11 +883,29 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 24,
+    id: 28,
+    worldId: 4,
+    title: 'In-Between Tricky Letters (U-Z & Mix)',
+    subtitle: 'Master the ending letters and lowercase letter bridges!',
+    badge: '🔤 Level 28',
+    icon: '🌉',
+    type: 'between_alpha',
+    color: '#EC4899',
+    bgGrad: 'linear-gradient(135deg, #EC4899 0%, #DB2777 100%)',
+    rounds: [
+      { before: 'U', after: 'W', answer: 'V', options: ['X', 'V', 'T', 'U'], phonic: 'V is for Van 🚐' },
+      { before: 'W', after: 'Y', answer: 'X', options: ['Z', 'W', 'X', 'V'], phonic: 'X is for Xylophone 🎶' },
+      { before: 'X', after: 'Z', answer: 'Y', options: ['W', 'Y', 'A', 'Z'], phonic: 'Y is for Yoyo 🪀' },
+      { before: 'b', after: 'd', answer: 'c', options: ['e', 'a', 'c', 'd'], phonic: 'C is for Cat 🐱' },
+      { before: 'p', after: 'r', answer: 'q', options: ['s', 'o', 'q', 'p'], phonic: 'Q is for Quilt 🧵' }
+    ]
+  },
+  {
+    id: 29,
     worldId: 4,
     title: 'Phonics Superstar',
     subtitle: 'Spell cool animals and objects by solving the missing letter!',
-    badge: '📖 Level 24',
+    badge: '📖 Level 29',
     icon: '🦁',
     type: 'missing_letter',
     color: '#DC2626',
@@ -698,14 +920,14 @@ const GAME_LEVELS = [
   },
 
   /* ====================================================================
-     WORLD 5: GRAND MASTER LEGENDS (LEVELS 25 - 30)
+     WORLD 5: GRAND MASTER LEGENDS (LEVELS 30 - 36)
      ==================================================================== */
   {
-    id: 25,
+    id: 30,
     worldId: 5,
     title: 'Skip Counting by 10s',
     subtitle: 'Count big leaps of 10 like a counting rocket!',
-    badge: '🦘 Level 25',
+    badge: '🦘 Level 30',
     icon: '🔟',
     type: 'next_num',
     color: '#2563EB',
@@ -719,11 +941,29 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 26,
+    id: 31,
+    worldId: 5,
+    title: 'In-Between Big Numbers (20-50)',
+    subtitle: 'Bridge the gap between bigger numbers like a math champion!',
+    badge: '🔢 Level 31',
+    icon: '🚀',
+    type: 'between_num',
+    color: '#3B82F6',
+    bgGrad: 'linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%)',
+    rounds: [
+      { before: 21, after: 23, answer: 22, options: [24, 22, 20, 23], hint: 'What number is between 21 and 23?' },
+      { before: 28, after: 30, answer: 29, options: [31, 27, 29, 30], hint: 'What number is between 28 and 30?' },
+      { before: 34, after: 36, answer: 35, options: [33, 35, 37, 36], hint: 'What number is between 34 and 36?' },
+      { before: 41, after: 43, answer: 42, options: [40, 44, 42, 43], hint: 'What number is between 41 and 43?' },
+      { before: 47, after: 49, answer: 48, options: [50, 46, 48, 49], hint: 'What number is between 47 and 49?' }
+    ]
+  },
+  {
+    id: 32,
     worldId: 5,
     title: 'Picture to Alphabet Master (Q-Z)',
     subtitle: 'Match 4 magical objects to their starting letters!',
-    badge: '🖼️ Level 26',
+    badge: '🖼️ Level 32',
     icon: '🦄',
     type: 'match_picture',
     color: '#7C3AED',
@@ -731,36 +971,36 @@ const GAME_LEVELS = [
     rounds: [
       {
         pairs: [
-          { item: '👑 Queen', letter: 'Q' },
-          { item: '🌹 Rose', letter: 'R' },
-          { item: '☀️ Sun', letter: 'S' },
-          { item: '🐯 Tiger', letter: 'T' }
+          { emoji: '👑', word: 'Queen', letter: 'Q' },
+          { emoji: '🌹', word: 'Rose', letter: 'R' },
+          { emoji: '☀️', word: 'Sun', letter: 'S' },
+          { emoji: '🐯', word: 'Tiger', letter: 'T' }
         ]
       },
       {
         pairs: [
-          { item: '☂️ Umbrella', letter: 'U' },
-          { item: '🎻 Violin', letter: 'V' },
-          { item: '🍉 Watermelon', letter: 'W' },
-          { item: '🪀 Yoyo', letter: 'Y' }
+          { emoji: '☂️', word: 'Umbrella', letter: 'U' },
+          { emoji: '🚐', word: 'Van', letter: 'V' },
+          { emoji: '🍉', word: 'Watermelon', letter: 'W' },
+          { emoji: '⛵', word: 'Yacht', letter: 'Y' }
         ]
       },
       {
         pairs: [
-          { item: '🦄 Unicorn', letter: 'U' },
-          { item: '⌚ Watch', letter: 'W' },
-          { item: '🦓 Zebra', letter: 'Z' },
-          { item: '👑 Quilt', letter: 'Q' }
+          { emoji: '🦄', word: 'Unicorn', letter: 'U' },
+          { emoji: '⌚', word: 'Watch', letter: 'W' },
+          { emoji: '🦓', word: 'Zebra', letter: 'Z' },
+          { emoji: '👸', word: 'Queen', letter: 'Q' }
         ]
       }
     ]
   },
   {
-    id: 27,
+    id: 33,
     worldId: 5,
     title: 'Super Visual Sleuth',
     subtitle: 'Spot the trickiest odd-one-out patterns like a real detective!',
-    badge: '🔍 Level 27',
+    badge: '🔍 Level 33',
     icon: '🕵️',
     type: 'odd_one_out',
     color: '#0D9488',
@@ -774,11 +1014,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 28,
+    id: 34,
     worldId: 5,
     title: 'Mega Counting (16-20)',
     subtitle: 'Count big clusters of shining stars and flying butterflies!',
-    badge: '🔢 Level 28',
+    badge: '🔢 Level 34',
     icon: '🌟',
     type: 'count_items',
     color: '#059669',
@@ -792,11 +1032,11 @@ const GAME_LEVELS = [
     ]
   },
   {
-    id: 29,
+    id: 35,
     worldId: 5,
     title: '5-Letter Word Challenge',
     subtitle: 'Spell big 5-letter words by choosing the missing letter!',
-    badge: '📖 Level 29',
+    badge: '📖 Level 35',
     icon: '🚂',
     type: 'missing_letter',
     color: '#E11D48',
@@ -805,16 +1045,16 @@ const GAME_LEVELS = [
       { word: 'T R _ I N', answer: 'A', full: 'TRAIN', icon: '🚂', hint: 'Choo choo! Chugs on the railway tracks!', options: ['A', 'E', 'I', 'O'] },
       { word: 'S M _ L E', answer: 'I', full: 'SMILE', icon: '😊', hint: 'Show your happy smiling face!', options: ['I', 'Y', 'E', 'O'] },
       { word: 'C L _ U D', answer: 'O', full: 'CLOUD', icon: '☁️', hint: 'Floats fluffy in the blue sky!', options: ['O', 'A', 'U', 'I'] },
-      { word: 'P L _ N T', answer: 'A', full: 'PLANT', icon: '🪴', hint: 'Grows green in a pretty pot!', options: ['A', 'E', 'I', 'O'] },
+      { word: 'P L _ N T', answer: 'A', full: 'PLANT', icon: '🌱', hint: 'Grows green with lovely leaves!', options: ['A', 'E', 'I', 'O'] },
       { word: 'H _ U S E', answer: 'O', full: 'HOUSE', icon: '🏠', hint: 'Our warm and cozy home!', options: ['O', 'A', 'E', 'U'] }
     ]
   },
   {
-    id: 30,
+    id: 36,
     worldId: 5,
     title: 'Ultimate Academy Champion',
     subtitle: 'The Grand Finale! Master skip counting, big words, and alphabet loops!',
-    badge: '👑 Level 30 (Grand Finale)',
+    badge: '👑 Level 36 (Grand Finale)',
     icon: '👑',
     type: 'mixed_champion',
     color: '#F59E0B',
@@ -866,5 +1106,6 @@ const GAME_LEVELS = [
 
 // Attach to window
 window.LETTER_COLOR_PALETTE = LETTER_COLOR_PALETTE;
+window.GAME_SVGS = GAME_SVGS;
 window.GAME_WORLDS = GAME_WORLDS;
 window.GAME_LEVELS = GAME_LEVELS;

@@ -381,6 +381,10 @@ class StudyGame {
       this.activities.renderOppositesRound(round, questionContainer);
     } else if (type === 'odd_one_out') {
       this.activities.renderOddOneOutRound(round, questionContainer);
+    } else if (type === 'between_alpha') {
+      this.activities.renderBetweenAlphaRound(round, questionContainer);
+    } else if (type === 'between_num') {
+      this.activities.renderBetweenNumRound(round, questionContainer);
     }
   }
 
@@ -565,7 +569,8 @@ class StudyGame {
     if (!this.modalGraduation) return;
     window.Sound.playVictory();
     if (this.confetti) this.confetti.burst(120);
-    window.Voice.speak('Congratulations! You are an Alphabet, Number, Color, Shape, and Phonics Grand Master Champion! You completed all 30 levels!');
+    const totalLevels = window.GAME_LEVELS ? window.GAME_LEVELS.length : 36;
+    window.Voice.speak(`Congratulations! You are an Alphabet, Number, Color, Shape, and Phonics Grand Master Champion! You completed all ${totalLevels} levels!`);
     this.modalGraduation.classList.remove('hidden');
   }
 

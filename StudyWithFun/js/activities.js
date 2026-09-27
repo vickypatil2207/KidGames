@@ -270,16 +270,20 @@ class ActivityManager {
 
         <div class="match-col upper-col">
           <div class="col-heading">Pictures 🖼️</div>
-          ${round.pairs.map(p => `
-            <button class="match-card upper-card picture-card" data-letter="${p.letter}">
+          ${round.pairs.map(p => {
+            const emojiDisplay = p.emoji || (p.item ? p.item.split(' ')[0] : '🖼️');
+            const wordName = p.word || (p.item ? p.item.replace(emojiDisplay, '').trim() : '');
+            return `
+            <button class="match-card upper-card picture-card" data-letter="${p.letter}" data-word="${wordName}">
               <div class="card-text-group">
-                <span class="card-picture-label">${p.item}</span>
+                <span class="card-picture-emoji">${emojiDisplay}</span>
               </div>
               <div class="pointer-node pointer-right" title="Connecting pointer">
                 <i class="fa-solid fa-arrow-right"></i>
               </div>
             </button>
-          `).join('')}
+            `;
+          }).join('')}
         </div>
 
         <div class="match-divider">
@@ -325,7 +329,8 @@ class ActivityManager {
         window.Sound.playPop();
 
         const val = card.getAttribute('data-letter');
-        const voiceTxt = isPictureMatch ? `${card.textContent.trim()}` : `Capital ${val}`;
+        const wordAttr = card.getAttribute('data-word');
+        const voiceTxt = isPictureMatch ? (wordAttr || val) : `Capital ${val}`;
         window.Voice.speak(voiceTxt, true);
 
         this.checkMatchPair(round, wrapper, isPictureMatch);
@@ -371,7 +376,7 @@ class ActivityManager {
       };
 
       const pairInfo = round.pairs.find(p => (p.upper === upperLetter || p.letter === upperLetter));
-      const wordText = pairInfo ? (pairInfo.word || pairInfo.item) : `${upperLetter}`;
+      const wordText = pairInfo ? (pairInfo.word || (pairInfo.item ? pairInfo.item.replace(/^[^\s]+\s*/, '') : upperLetter)) : `${upperLetter}`;
 
       this.drawMatchArrow(wrapper, upperCard, lowerCard, pal.color, upperLetter, false);
 
@@ -444,7 +449,7 @@ class ActivityManager {
       this.game.resolvedPairsCount++;
 
       const pairInfo = round.pairs.find(p => (p.upper === upperLetter || p.letter === upperLetter));
-      const nameTxt = pairInfo ? (pairInfo.word || pairInfo.item) : upperLetter;
+      const nameTxt = pairInfo ? (pairInfo.word || (pairInfo.item ? pairInfo.item.replace(/^[^\s]+\s*/, '') : upperLetter)) : upperLetter;
       const speechMsg = isPictureMatch
         ? `Oops! ${nameTxt} starts with Letter ${upperLetter}!`
         : `Oops! Big ${upperLetter} matches with small ${upperLetter.toLowerCase()}!`;
@@ -931,6 +936,165 @@ class ActivityManager {
           window.Voice.speak(`You found it! ${round.answer} was the different one!`, true);
           advanceCallback();
         });
+      });
+    });
+  }
+
+  /* ====================================================================
+     TYPE 11: IN-BETWEEN ALPHABET (A -> ? -> C)
+     ==================================================================== */
+  renderBetweenAlphaRound(round, container) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'activity-wrapper between-activity between-alpha-activity';
+
+    const before = round.before !== undefined ? round.before : (round.seq ? round.seq[0] : '');
+    const after = round.after !== undefined ? round.after : (round.seq ? round.seq[round.seq.length - 1] : '');
+
+    const speechText = `Find what letter comes in between ${before} and ${after}!`;
+    window.Voice.speak(speechText);
+
+    wrapper.innerHTML = `
+      <div class="activity-instruction">
+        <span class="mascot-emoji">🔤</span>
+        <span class="instruction-text">${round.hint || `What letter comes in between <strong>${before}</strong> and <strong>${after}</strong>?`}</span>
+        <button class="btn-sound-hint" title="Listen again"><i class="fa-solid fa-volume-high"></i> Listen</button>
+      </div>
+
+      <div class="sequence-track between-track">
+        <div class="seq-node past-node">
+          <span class="node-letter">${before}</span>
+        </div>
+        <span class="seq-arrow">➔</span>
+        <div class="seq-node target-node" id="target-slot">
+          <span class="node-letter">❓</span>
+        </div>
+        <span class="seq-arrow">➔</span>
+        <div class="seq-node past-node">
+          <span class="node-letter">${after}</span>
+        </div>
+      </div>
+
+      <div id="revealed-between-box" class="revealed-container"></div>
+
+      <div class="options-grid" id="options-grid">
+        ${round.options.map(opt => `
+          <button class="choice-btn" data-val="${opt}">
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    container.appendChild(wrapper);
+
+    wrapper.querySelector('.btn-sound-hint').addEventListener('click', () => {
+      window.Voice.speak(speechText, true);
+    });
+
+    const targetSlot = wrapper.querySelector('#target-slot');
+    const optionBtns = wrapper.querySelectorAll('.choice-btn');
+
+    optionBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.game.checkAnswer(
+          btn.getAttribute('data-val'),
+          round.answer.toString(),
+          btn,
+          targetSlot,
+          (advanceCallback) => {
+            const phonicText = round.phonic || `${round.answer} is in between ${before} and ${after}! ⭐`;
+            const box = wrapper.querySelector('#revealed-between-box');
+            if (box) {
+              box.innerHTML = `
+                <div class="revealed-phonic-banner">
+                  <span>🎉</span>
+                  <span><strong>${before}</strong> ➔ <strong>${round.answer}</strong> ➔ <strong>${after}</strong>! ${phonicText}</span>
+                </div>
+              `;
+            }
+            window.Voice.speak(`Super! ${round.answer}! ${phonicText}`, true);
+            advanceCallback();
+          }
+        );
+      });
+    });
+  }
+
+  /* ====================================================================
+     TYPE 12: IN-BETWEEN NUMBERS (4 -> ? -> 6)
+     ==================================================================== */
+  renderBetweenNumRound(round, container) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'activity-wrapper between-activity between-num-activity';
+
+    const before = round.before !== undefined ? round.before : (round.seq ? round.seq[0] : '');
+    const after = round.after !== undefined ? round.after : (round.seq ? round.seq[round.seq.length - 1] : '');
+
+    const speechText = `What number is in between ${before} and ${after}?`;
+    window.Voice.speak(speechText);
+
+    wrapper.innerHTML = `
+      <div class="activity-instruction">
+        <span class="mascot-emoji">🔢</span>
+        <span class="instruction-text">${round.hint || `What number comes in between <strong>${before}</strong> and <strong>${after}</strong>?`}</span>
+        <button class="btn-sound-hint" title="Listen again"><i class="fa-solid fa-volume-high"></i> Listen</button>
+      </div>
+
+      <div class="sequence-track between-track">
+        <div class="seq-node past-node num-node">
+          <span class="node-letter">${before}</span>
+        </div>
+        <span class="seq-arrow">➔</span>
+        <div class="seq-node target-node num-node" id="target-slot">
+          <span class="node-letter">❓</span>
+        </div>
+        <span class="seq-arrow">➔</span>
+        <div class="seq-node past-node num-node">
+          <span class="node-letter">${after}</span>
+        </div>
+      </div>
+
+      <div id="revealed-between-box" class="revealed-container"></div>
+
+      <div class="options-grid" id="options-grid">
+        ${round.options.map(opt => `
+          <button class="choice-btn num-btn" data-val="${opt}">
+            <span>${opt}</span>
+          </button>
+        `).join('')}
+      </div>
+    `;
+
+    container.appendChild(wrapper);
+
+    wrapper.querySelector('.btn-sound-hint').addEventListener('click', () => {
+      window.Voice.speak(speechText, true);
+    });
+
+    const targetSlot = wrapper.querySelector('#target-slot');
+    const optionBtns = wrapper.querySelectorAll('.choice-btn');
+
+    optionBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        this.game.checkAnswer(
+          btn.getAttribute('data-val'),
+          round.answer.toString(),
+          btn,
+          targetSlot,
+          (advanceCallback) => {
+            const box = wrapper.querySelector('#revealed-between-box');
+            if (box) {
+              box.innerHTML = `
+                <div class="revealed-phonic-banner">
+                  <span>🎉</span>
+                  <span><strong>${before}</strong> ➔ <strong>${round.answer}</strong> ➔ <strong>${after}</strong>! Super counting! ⭐</span>
+                </div>
+              `;
+            }
+            window.Voice.speak(`Super! Number ${round.answer} is in between ${before} and ${after}! Awesome!`, true);
+            advanceCallback();
+          }
+        );
       });
     });
   }
