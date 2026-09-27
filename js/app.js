@@ -242,6 +242,47 @@ const GAMES_REGISTRY = [
       <!-- Little Golden Star -->
       <polygon points="106,85 110,95 120,95 112,102 115,112 106,106 97,112 100,102 92,95 102,95" fill="#FFBE0B"/>
     </svg>`
+  },
+  {
+    id: 'talk-and-type',
+    title: 'Talk & Type Learning',
+    category: 'learning',
+    categoryName: 'Pre-Primary Learning',
+    emoji: '🎤',
+    folder: 'TalkAndType',
+    path: 'TalkAndType/index.html',
+    description: 'Speak words into your microphone, then type them letter-by-letter on your keyboard with glowing hints & personal Explorer Badges!',
+    features: ['Voice Recognition', 'Keyboard Guided Typing', 'Name Spelling Badge', 'Phonics & Stars'],
+    gradient: 'linear-gradient(135deg, #4F46E5 0%, #EC4899 100%)',
+    artSvg: `<svg viewBox="0 0 200 120" width="100%" height="100%">
+      <defs>
+        <linearGradient id="ttGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#EEF2FF"/>
+          <stop offset="100%" stop-color="#C7D2FE"/>
+        </linearGradient>
+      </defs>
+      <rect width="200" height="120" fill="url(#ttGrad)"/>
+      <!-- Keyboard Base -->
+      <rect x="25" y="48" width="150" height="58" rx="12" fill="#312E81"/>
+      <rect x="35" y="55" width="22" height="18" rx="5" fill="#FFF"/>
+      <text x="46" y="69" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="12" fill="#4F46E5" text-anchor="middle">A</text>
+      <rect x="62" y="55" width="22" height="18" rx="5" fill="#FDE047"/>
+      <text x="73" y="69" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="12" fill="#B45309" text-anchor="middle">B</text>
+      <rect x="89" y="55" width="22" height="18" rx="5" fill="#FFF"/>
+      <text x="100" y="69" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="12" fill="#4F46E5" text-anchor="middle">C</text>
+      <rect x="116" y="55" width="22" height="18" rx="5" fill="#FFF"/>
+      <text x="127" y="69" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="12" fill="#4F46E5" text-anchor="middle">D</text>
+      <rect x="143" y="55" width="22" height="18" rx="5" fill="#FFF"/>
+      <text x="154" y="69" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="12" fill="#4F46E5" text-anchor="middle">E</text>
+      <!-- Spacebar -->
+      <rect x="55" y="80" width="90" height="16" rx="6" fill="#10B981"/>
+      <text x="100" y="92" font-family="'Fredoka', sans-serif" font-weight="bold" font-size="10" fill="#FFF" text-anchor="middle">TALK &amp; TYPE</text>
+      <!-- Glowing Microphone Top -->
+      <circle cx="100" cy="26" r="16" fill="#EC4899"/>
+      <rect x="95" y="17" width="10" height="14" rx="5" fill="#FFF"/>
+      <path d="M 91 24 C 91 32 109 32 109 24" stroke="#FFF" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <line x1="100" y1="32" x2="100" y2="36" stroke="#FFF" stroke-width="2.5"/>
+    </svg>`
   }
 ];
 

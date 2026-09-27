@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Talk & Type — Kids Voice & Keyboard Learning Adventure! 🎤⌨️</title>
+  <meta name="description" content="Fun interactive voice & keyboard typing game for kids. Learn A to Z words, speak into the mic, and practice typing with guided phonics and glowing keyboard hints!" />
+  <meta name="keywords" content="kids typing game, learn keyboard, phonics game, voice recognition for kids, speech typing, alphabet typing, abc keyboard" />
+  <meta name="theme-color" content="#4F46E5" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Bubblegum+Sans&family=Fredoka:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- Floating Background Decorative Elements -->
+  <div class="bg-decor" aria-hidden="true">
+    <div class="cloud cloud-1"></div>
+    <div class="cloud cloud-2"></div>
+    <div class="cloud cloud-3"></div>
+  </div>
+
+  <!-- Confetti Canvas -->
+  <canvas id="confetti-canvas" aria-hidden="true"></canvas>
+
+  <!-- Main App Wrapper -->
+  <div class="app-container">
+
+    <!-- Top Navigation Bar -->
+    <header class="top-navbar">
+      <div class="nav-left">
+        <a href="../index.html" class="btn-nav btn-home" title="Back to KidGames Arcade">
+          <i class="fa-solid fa-arrow-left"></i> <span>Arcade Hub</span>
+        </a>
+        <button id="btn-edit-badge" class="btn-nav btn-badge" type="button" title="View or Change Explorer Name Badge">
+          <span id="lbl-player-badge">🎖️ Create Badge</span>
+        </button>
+      </div>
+
+      <div class="nav-right">
+        <!-- Audio Controls -->
+        <button id="btn-toggle-sound" class="btn-nav active" type="button" title="Toggle Sound Effects">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+
+        <button id="btn-toggle-voice" class="btn-nav active" type="button" title="Toggle Voice Narration">
+          <i class="fa-solid fa-comment-dots"></i> <span>Voice ON</span>
+        </button>
+
+        <!-- Star Tracker -->
+        <div class="stars-pill" title="Total Stars Collected">
+          <span id="nav-stars-count">0 ⭐</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- SCREEN 1: Name Badge Setup / Mission 1 -->
+    <section id="screen-badge-setup" class="screen-container hidden">
+      <div class="badge-setup-card">
+        <div class="brand-badge">🚀 Mission #1: The Super Typer Badge</div>
+        <h1 class="hero-title">What is <span class="highlight">Your Name?</span> 🎈</h1>
+        <p class="hero-subtitle">
+          Type or enter your name so Pip the Mascot can make your Official Explorer Badge and teach you how to type your own name!
+        </p>
+
+        <div class="badge-input-box">
+          <input
+            id="input-player-name"
+            class="input-name"
+            type="text"
+            maxlength="15"
+            placeholder="TYPE NAME HERE"
+            autocomplete="off"
+            spellcheck="false"
+            aria-label="Enter your name"
+          />
+        </div>
+
+        <div class="modal-actions">
+          <button id="btn-save-name" class="btn-primary-action" type="button">
+            <span>Learn to Type My Name!</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button id="btn-skip-name" class="btn-modal-secondary" type="button">
+            <span>Skip to A–Z Safari</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- SCREEN 2: A–Z Journey Roadmap Screen -->
+    <section id="screen-roadmap" class="screen-container">
+      <div class="hero-banner">
+        <div class="brand-badge">🎤 Speak & Spell ⌨️ Touch & Type</div>
+        <h1 class="hero-title">Talk & <span class="highlight">Type!</span> 🌟</h1>
+        <p class="hero-subtitle">
+          Identify fun objects by speaking into your mic, then spell them letter-by-letter on your keyboard with glowing hints!
+        </p>
+      </div>
+
+      <!-- Roadmap Toolbar & Progress Tracker -->
+      <div class="roadmap-toolbar">
+        <div class="progress-info">
+          <div class="progress-label-row">
+            <span>Overall Progress</span>
+            <span id="lbl-progress-pct">0% Complete (0/78 Words)</span>
+          </div>
+          <div class="progress-track" aria-hidden="true">
+            <div id="progress-bar-overall" class="progress-fill" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <div class="roadmap-actions">
+          <button id="btn-play-next" class="btn-primary-action" type="button">
+            <i class="fa-solid fa-play"></i> <span>Play Next Word</span>
+          </button>
+          <button id="btn-view-cert" class="btn-primary-action btn-cert-action" type="button" title="View Graduation Certificate">
+            <i class="fa-solid fa-award"></i> <span>Typer Certificate</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 26 Letter Cards Grid -->
+      <main id="roadmap-letters-grid" class="letters-grid" aria-label="A to Z Letter Selection">
+        <!-- Rendered dynamically by game.js -->
+      </main>
+    </section>
+
+    <!-- SCREEN 3: Interactive Play Stage -->
+    <section id="screen-play" class="screen-container hidden">
+      <div class="play-stage-header">
+        <button id="btn-back-to-map" class="btn-nav btn-home" type="button">
+          <i class="fa-solid fa-map"></i> <span>Letter Map</span>
+        </button>
+      </div>
+
+      <!-- Main Stage Card -->
+      <div id="stage-card" class="stage-main-card" role="region" aria-live="polite">
+        <div id="stage-letter-tag" class="stage-letter-pill">Letter A</div>
+        <div id="stage-emoji" class="stage-emoji-display">🍎</div>
+        <p id="stage-word-hint" class="stage-hint-text">A crunchy, sweet fruit that grows on trees!</p>
+        <div id="stage-phonics" class="stage-phonics-badge">Ah as in Apple</div>
+
+        <!-- Phase 1: Speak Section -->
+        <div id="section-speak" class="stage-section-speak">
+          <div class="mic-button-wrapper">
+            <button id="btn-mic-listen" class="btn-mic" type="button" title="Click to Speak">
+              <i class="fa-solid fa-microphone"></i>
+            </button>
+            <div id="mic-soundwaves" class="mic-soundwaves hidden" aria-hidden="true"></div>
+          </div>
+          <p id="mic-status-text" class="mic-status-label">Tap the microphone and say what this is!</p>
+          <button id="btn-help-say" class="btn-help-say" type="button">
+            <span>Skip & Type It!</span> <i class="fa-solid fa-keyboard"></i>
+          </button>
+        </div>
+
+        <!-- Phase 2: Guided Typing Section -->
+        <div id="section-type" class="stage-section-type hidden">
+          <!-- Empty Letter Slot Boxes -->
+          <div id="letter-slots-container" class="letter-slots-container">
+            <!-- Injected dynamically -->
+          </div>
+
+          <div class="type-prompt-bar">
+            <span id="type-prompt-text">Type letter: "A"</span>
+            <button id="btn-repeat-prompt" class="btn-speaker-repeat" type="button" title="Hear Letter Again">
+              <i class="fa-solid fa-volume-high"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Mascot Feedback -->
+        <div class="mascot-row">
+          <div id="mascot-avatar" class="mascot-avatar mascot-listen">🐶</div>
+          <div id="mascot-speech-bubble" class="mascot-speech-bubble">Look! What is this?</div>
+        </div>
+      </div>
+
+      <!-- Visual Rainbow Keyboard -->
+      <div class="keyboard-section">
+        <div id="keyboard-container">
+          <!-- Injected dynamically by keyboard.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- MODAL 1: Word Celebration -->
+    <div id="modal-word-complete" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-content">
+        <h2 class="modal-title">🎉 Fantastic Spelling! 🎉</h2>
+        <div id="modal-celebration-emoji" class="modal-badge-emoji">🍎</div>
+        <h3 id="modal-spelled-word" class="modal-word-title">APPLE</h3>
+        <p id="modal-word-meaning" class="modal-word-desc">A crunchy, sweet fruit that grows on trees!</p>
+        <div class="modal-actions">
+          <button id="btn-modal-next-word" class="btn-modal-primary" type="button">
+            <span>Next Word</span> <i class="fa-solid fa-arrow-right"></i>
+          </button>
+          <button id="btn-modal-map" class="btn-modal-secondary" type="button">
+            <i class="fa-solid fa-map"></i> <span>Letter Map</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL 2: Super Typer Certificate -->
+    <div id="modal-certificate" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-content certificate-frame">
+        <div class="brand-badge">⭐ OFFICIAL GRADUATION AWARD ⭐</div>
+        <h2 class="cert-header">SUPER TYPER CERTIFICATE</h2>
+        <p>This certifies that our superstar:</p>
+        <h1 id="cert-player-name" class="cert-name">SUPER EXPLORER</h1>
+        <p>has mastered speaking & typing with <strong><span id="cert-stars-count">0</span> Stars</strong> and <strong><span id="cert-words-count">0</span> Mastered Words</strong>!</p>
+        <div class="modal-badge-emoji">🏆🎓⭐</div>
+        <div class="modal-actions">
+          <button id="btn-print-cert" class="btn-modal-primary" type="button">
+            <i class="fa-solid fa-print"></i> <span>Print / Save Certificate</span>
+          </button>
+          <button id="btn-close-cert" class="btn-modal-secondary" type="button">
+            <span>Close</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Application Logic Scripts (Divided into modular scripts) -->
+  <script src="js/audio.js"></script>
+  <script src="js/confetti.js"></script>
+  <script src="js/words-data.js"></script>
+  <script src="js/speech.js"></script>
+  <script src="js/keyboard.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
