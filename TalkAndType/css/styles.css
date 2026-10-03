@@ -259,6 +259,13 @@ body {
   margin-bottom: 24px;
 }
 
+.roadmap-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .progress-info {
   display: flex;
   flex-direction: column;
@@ -996,6 +1003,12 @@ body {
     width: 48px;
     height: 58px;
     font-size: 2.2rem;
+  }
+
+  .modal-actions, .roadmap-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
   }
 }
 
